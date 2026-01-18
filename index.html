@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <style>
         :root {
             --primary: #166534;
@@ -453,6 +455,54 @@
             background: #f59e0b;
         }
 
+        /* Cluster styles */
+        .marker-cluster {
+            background: rgba(22, 163, 74, 0.2);
+            border-radius: 50%;
+        }
+
+        .marker-cluster div {
+            background: var(--primary-600);
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .marker-cluster-small {
+            width: 36px;
+            height: 36px;
+        }
+        .marker-cluster-small div {
+            width: 28px;
+            height: 28px;
+            margin: 4px;
+        }
+
+        .marker-cluster-medium {
+            width: 44px;
+            height: 44px;
+        }
+        .marker-cluster-medium div {
+            width: 34px;
+            height: 34px;
+            margin: 5px;
+        }
+
+        .marker-cluster-large {
+            width: 52px;
+            height: 52px;
+        }
+        .marker-cluster-large div {
+            width: 40px;
+            height: 40px;
+            margin: 6px;
+        }
+
         /* ========== MOBILE LAYOUT ========== */
         .mobile-nav {
             display: none;
@@ -654,7 +704,7 @@
                     <svg class="icon-search" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <input type="text" id="searchInput" placeholder="Buscar ganaderia...">
+                    <input type="text" id="searchInput" placeholder="Buscar ganaderia..." aria-label="Buscar ganadería por nombre" autocomplete="off">
                     <button class="btn-clear" id="btnClear">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 6L6 18M6 6l12 12"/>
@@ -663,19 +713,24 @@
                 </div>
             </div>
 
-            <div class="filters" id="filters"></div>
+            <div class="filters" id="filters" role="group" aria-label="Filtrar por provincia"></div>
 
             <div class="results-bar">
                 <span id="resultsCount">Cargando...</span>
             </div>
 
-            <div class="list-container" id="listContainer"></div>
+            <div class="list-container" id="listContainer" role="list" aria-label="Lista de ganaderías"></div>
         </aside>
 
         <!-- Map -->
         <main class="map-container" id="mapContainer">
             <div id="map"></div>
             <div class="map-controls">
+                <button class="map-btn" id="btnLocation" title="Mi ubicación">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+                    </svg>
+                </button>
                 <button class="map-btn" id="btnCenter" title="Centrar mapa">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
@@ -707,6 +762,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
         // ========== DATA ==========
         const ganaderias = [
@@ -903,10 +959,21 @@
             popupAnchor: [0, -32]
         });
 
+        // ========== CLUSTER ==========
+        const markerCluster = L.markerClusterGroup({
+            maxClusterRadius: 50,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true,
+            disableClusteringAtZoom: 12
+        });
+        map.addLayer(markerCluster);
+
         // ========== STATE ==========
         const markers = [];
         let activeProvince = null;
         let activeMarkerIndex = null;
+        let searchTimeout = null;
 
         // ========== RENDER ==========
         function createPopup(g) {
@@ -940,6 +1007,9 @@
             const url = `https://www.google.com/maps?q=${g.lat},${g.lng}`;
             const div = document.createElement('div');
             div.className = 'list-item';
+            div.setAttribute('role', 'listitem');
+            div.setAttribute('tabindex', '0');
+            div.setAttribute('aria-label', `${g.nombre}, ${g.provincia}`);
             div.innerHTML = `
                 <div class="list-item-header">
                     <div class="list-item-icon">
@@ -970,7 +1040,7 @@
                 </div>
             `;
 
-            div.addEventListener('click', () => {
+            const handleSelect = () => {
                 setActive(index);
                 map.setView([g.lat, g.lng], 14, { animate: true });
                 markers[index].marker.openPopup();
@@ -978,6 +1048,14 @@
                 // On mobile, switch to map view
                 if (window.innerWidth <= 768) {
                     showView('map');
+                }
+            };
+
+            div.addEventListener('click', handleSelect);
+            div.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelect();
                 }
             });
 
@@ -1044,6 +1122,10 @@
             const items = list.querySelectorAll('.list-item');
             let count = 0;
 
+            // Batch DOM operations
+            const toAdd = [];
+            const toRemove = [];
+
             items.forEach((item, i) => {
                 const g = data[i];
                 const matchSearch = normalize(g.nombre).includes(search) ||
@@ -1055,11 +1137,19 @@
 
                 if (show) {
                     count++;
-                    if (!map.hasLayer(markers[i].marker)) markers[i].marker.addTo(map);
+                    if (!markerCluster.hasLayer(markers[i].marker)) {
+                        toAdd.push(markers[i].marker);
+                    }
                 } else {
-                    map.removeLayer(markers[i].marker);
+                    if (markerCluster.hasLayer(markers[i].marker)) {
+                        toRemove.push(markers[i].marker);
+                    }
                 }
             });
+
+            // Batch add/remove markers for performance
+            if (toRemove.length) markerCluster.removeLayers(toRemove);
+            if (toAdd.length) markerCluster.addLayers(toAdd);
 
             document.getElementById('resultsCount').innerHTML =
                 `<strong>${count}</strong> de <strong>${data.length}</strong> ganaderias`;
@@ -1075,24 +1165,35 @@
 
         function init() {
             const list = document.getElementById('listContainer');
+            const fragment = document.createDocumentFragment();
 
             data.forEach((g, i) => {
                 // Create marker
-                const marker = L.marker([g.lat, g.lng], { icon: createIcon() }).addTo(map);
+                const marker = L.marker([g.lat, g.lng], { icon: createIcon() });
                 marker.bindPopup(createPopup(g), { maxWidth: 300 });
-                marker.on('click', () => setActive(i));
+                marker.on('click', () => {
+                    setActive(i);
+                    // Zoom to marker when clicked in cluster
+                    map.setView([g.lat, g.lng], 14, { animate: true });
+                });
                 markers.push({ marker, data: g });
+                markerCluster.addLayer(marker);
 
-                // Create list item
-                list.appendChild(createListItem(g, i));
+                // Create list item using fragment for better performance
+                fragment.appendChild(createListItem(g, i));
             });
 
+            list.appendChild(fragment);
             initFilters();
             applyFilters();
         }
 
         // ========== EVENTS ==========
-        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        // Debounced search for better performance
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 150);
+        });
 
         document.getElementById('btnClear').addEventListener('click', () => {
             document.getElementById('searchInput').value = '';
@@ -1112,6 +1213,46 @@
                 const bounds = visible.map(m => [m.data.lat, m.data.lng]);
                 map.fitBounds(bounds, { padding: [50, 50], animate: true });
             }
+        });
+
+        // Geolocation
+        let userMarker = null;
+        document.getElementById('btnLocation').addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                alert('Tu navegador no soporta geolocalización');
+                return;
+            }
+
+            const btn = document.getElementById('btnLocation');
+            btn.style.color = 'var(--primary-600)';
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+
+                    // Remove previous marker
+                    if (userMarker) map.removeLayer(userMarker);
+
+                    // Add user marker
+                    userMarker = L.circleMarker([latitude, longitude], {
+                        radius: 10,
+                        fillColor: '#4285f4',
+                        fillOpacity: 1,
+                        color: 'white',
+                        weight: 3
+                    }).addTo(map);
+
+                    userMarker.bindPopup('<strong>Tu ubicación</strong>').openPopup();
+                    map.setView([latitude, longitude], 10, { animate: true });
+
+                    btn.style.color = '';
+                },
+                (err) => {
+                    btn.style.color = '';
+                    alert('No se pudo obtener tu ubicación');
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
         });
 
         // ========== MOBILE NAV ==========
