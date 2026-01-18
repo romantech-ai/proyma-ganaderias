@@ -282,7 +282,7 @@
         }
 
         .results-bar {
-            padding: 12px 16px;
+            padding: 10px 16px;
             font-size: 0.8125rem;
             color: var(--gray-500);
             background: white;
@@ -290,6 +290,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .results-bar-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .results-bar-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .results-bar strong {
@@ -297,8 +313,8 @@
             font-weight: 700;
         }
 
-        .export-btn {
-            padding: 6px 12px;
+        .action-btn {
+            padding: 6px 10px;
             background: var(--gray-100);
             border: 1px solid var(--gray-200);
             border-radius: 6px;
@@ -310,15 +326,21 @@
             align-items: center;
             gap: 4px;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        .export-btn:hover {
+        .action-btn:hover {
             background: var(--gray-200);
         }
 
-        .export-btn svg {
+        .action-btn svg {
             width: 14px;
             height: 14px;
+            flex-shrink: 0;
+        }
+
+        .action-btn .btn-text {
+            display: inline;
         }
 
         /* Sync button */
@@ -1234,8 +1256,38 @@
             }
 
             .results-bar {
-                padding: 10px 16px;
+                padding: 8px 12px;
                 font-size: 0.75rem;
+                gap: 8px;
+            }
+
+            .results-bar-top {
+                gap: 6px;
+            }
+
+            .results-bar-actions {
+                gap: 4px;
+            }
+
+            .action-btn {
+                padding: 6px 8px;
+            }
+
+            .action-btn .btn-text {
+                display: none;
+            }
+
+            .sync-btn {
+                padding: 6px 8px;
+            }
+
+            .sync-btn .sync-text {
+                display: none;
+            }
+
+            .sync-status-badge {
+                padding: 3px 6px;
+                font-size: 0.625rem;
             }
 
             .list-container {
@@ -2157,34 +2209,34 @@
             </div>
 
             <div class="results-bar">
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="results-bar-top">
                     <span id="resultsCount">Cargando...</span>
                     <span class="sync-status-badge" id="syncStatus" style="display: none;">
                         <span class="sync-status-dot"></span>
                         <span class="sync-status-text">--</span>
                     </span>
                 </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="results-bar-actions">
                     <button class="sync-btn" id="btnSync" title="Sincronizar con Google Sheets">
                         <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
                         </svg>
                         <span class="sync-text">Sync</span>
                     </button>
-                    <button class="export-btn" id="btnReset" style="background: var(--gray-100); color: var(--gray-600);" title="Restaurar datos de ejemplo">
+                    <button class="action-btn reset-btn" id="btnReset" title="Restaurar datos de ejemplo">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                             <path d="M3 3v5h5"/>
                         </svg>
-                        Reset
+                        <span class="btn-text">Reset</span>
                     </button>
-                    <button class="export-btn" id="btnExport">
+                    <button class="action-btn export-btn" id="btnExport" title="Exportar CSV">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
                             <line x1="12" y1="3" x2="12" y2="15"/>
                         </svg>
-                        Exportar
+                        <span class="btn-text">Exportar</span>
                     </button>
                 </div>
             </div>
