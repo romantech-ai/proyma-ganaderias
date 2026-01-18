@@ -1381,6 +1381,364 @@
             background: var(--red-500);
         }
 
+        /* Undo Toast */
+        .undo-toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--gray-900);
+            color: white;
+            padding: 0;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            min-width: 280px;
+        }
+
+        .undo-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .undo-message {
+            padding: 14px 16px;
+            flex: 1;
+        }
+
+        .undo-btn {
+            padding: 14px 20px;
+            background: transparent;
+            border: none;
+            color: var(--primary-600);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .undo-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .undo-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--primary-600);
+            width: 100%;
+            transform-origin: left;
+            animation: undoCountdown 10s linear forwards;
+        }
+
+        @keyframes undoCountdown {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        /* Sync status badge */
+        .sync-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--gray-100);
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sync-status-badge:hover {
+            background: var(--gray-200);
+        }
+
+        .sync-status-badge.synced {
+            background: rgba(52, 168, 83, 0.1);
+            color: #0f9d58;
+        }
+
+        .sync-status-badge.synced:hover {
+            background: rgba(52, 168, 83, 0.2);
+        }
+
+        .sync-status-badge.error {
+            background: rgba(234, 67, 53, 0.1);
+            color: #c5221f;
+        }
+
+        .sync-status-badge.error:hover {
+            background: rgba(234, 67, 53, 0.2);
+        }
+
+        .sync-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gray-400);
+        }
+
+        .sync-status-badge.synced .sync-status-dot {
+            background: #0f9d58;
+            box-shadow: 0 0 4px rgba(15, 157, 88, 0.5);
+        }
+
+        .sync-status-badge.error .sync-status-dot {
+            background: #c5221f;
+            box-shadow: 0 0 4px rgba(197, 34, 31, 0.5);
+        }
+
+        .sync-status-badge.not-configured {
+            background: rgba(251, 188, 4, 0.1);
+            color: #b06c00;
+        }
+
+        .sync-status-badge.not-configured .sync-status-dot {
+            background: #f9ab00;
+        }
+
+        /* Address search box */
+        .address-search-box {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .address-search-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .address-search-input-wrapper input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.9375rem;
+        }
+
+        .address-search-input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+        }
+
+        .address-search-btn {
+            padding: 10px 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .address-search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .address-search-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .address-search-results {
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .address-result-item {
+            padding: 10px 12px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .address-result-item:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .address-result-item .result-main {
+            font-weight: 500;
+            font-size: 0.9375rem;
+        }
+
+        .address-result-item .result-detail {
+            font-size: 0.8125rem;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .address-search-loading {
+            text-align: center;
+            padding: 12px;
+            color: var(--gray-500);
+        }
+
+        .address-search-empty {
+            text-align: center;
+            padding: 12px;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        /* Import Preview */
+        .import-preview {
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+        }
+
+        .import-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .import-preview-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.8125rem;
+            font-weight: normal;
+        }
+
+        .import-preview-stats .stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .import-preview-stats .stat.valid { color: #0f9d58; }
+        .import-preview-stats .stat.warning { color: #f9ab00; }
+        .import-preview-stats .stat.error { color: #c5221f; }
+
+        .import-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .import-preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .import-preview-item.duplicate {
+            background: rgba(249, 171, 0, 0.1);
+        }
+
+        .import-preview-item.invalid {
+            background: rgba(234, 67, 53, 0.1);
+        }
+
+        .import-preview-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .import-preview-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .import-preview-name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .import-preview-detail {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .import-preview-badge {
+            font-size: 0.6875rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .import-preview-badge.duplicate {
+            background: rgba(249, 171, 0, 0.2);
+            color: #b06c00;
+        }
+
+        .import-preview-badge.invalid {
+            background: rgba(234, 67, 53, 0.2);
+            color: #c5221f;
+        }
+
+        .import-preview-badge.new {
+            background: rgba(15, 157, 88, 0.2);
+            color: #0f9d58;
+        }
+
+        .import-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .import-actions button {
+            font-size: 0.8125rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .import-select-all {
+            background: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+
+        .import-select-all:hover {
+            background: var(--gray-200);
+        }
+
+        .import-deselect-duplicates {
+            background: rgba(249, 171, 0, 0.1);
+            border: 1px solid rgba(249, 171, 0, 0.3);
+            color: #b06c00;
+        }
+
+        .import-deselect-duplicates:hover {
+            background: rgba(249, 171, 0, 0.2);
+        }
+
         /* ========== PREMIUM ANIMATIONS ========== */
         @keyframes fadeInUp {
             from {
@@ -1702,7 +2060,13 @@
             </div>
 
             <div class="results-bar">
-                <span id="resultsCount">Cargando...</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="resultsCount">Cargando...</span>
+                    <span class="sync-status-badge" id="syncStatus" style="display: none;">
+                        <span class="sync-status-dot"></span>
+                        <span class="sync-status-text">--</span>
+                    </span>
+                </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <button class="sync-btn" id="btnSync" title="Sincronizar con Google Sheets">
                         <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1860,12 +2224,32 @@
                                     </svg>
                                     Mi ubicación
                                 </button>
+                                <button type="button" class="location-btn" id="btnSearchAddress">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <path d="M21 21l-4.35-4.35"/>
+                                    </svg>
+                                    Buscar dirección
+                                </button>
                                 <button type="button" class="location-btn" id="btnManualCoords">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M12 19V5M5 12l7-7 7 7"/>
                                     </svg>
                                     Manual
                                 </button>
+                            </div>
+                            <!-- Buscador de direcciones -->
+                            <div class="address-search-box" id="addressSearchBox" style="display: none;">
+                                <div class="address-search-input-wrapper">
+                                    <input type="text" id="addressSearchInput" placeholder="Ej: Calle Mayor 1, Ciudad Real">
+                                    <button type="button" id="btnDoAddressSearch" class="address-search-btn">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path d="M21 21l-4.35-4.35"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="address-search-results" id="addressSearchResults"></div>
                             </div>
                             <div class="coords-display" id="coordsDisplay">
                                 <strong>Lat:</strong> <span id="coordLat">-</span> |
@@ -1901,7 +2285,7 @@
 
     <!-- Import Modal -->
     <div class="modal-overlay" id="importModalOverlay">
-        <div class="modal">
+        <div class="modal" style="max-width: 600px;">
             <div class="modal-header">
                 <h2>Importar desde CSV</h2>
                 <button class="modal-close" id="importModalClose">
@@ -1915,18 +2299,71 @@
                     <label>Selecciona un archivo CSV</label>
                     <input type="file" id="csvFileInput" accept=".csv">
                 </div>
-                <div style="background: var(--gray-50); padding: 16px; border-radius: 10px; font-size: 0.8125rem; color: var(--gray-600);">
+                <div id="importFormatInfo" style="background: var(--gray-50); padding: 16px; border-radius: 10px; font-size: 0.8125rem; color: var(--gray-600);">
                     <strong>Formato esperado:</strong><br>
-                    nombre,lat,lng,direccion,telefono,email,contacto,categoria,notas<br><br>
-                    <strong>Ejemplo:</strong><br>
-                    "Granja San Jose",39.4567,-3.1234,"Calle Mayor 1","600123456","","Juan","activo","Cliente frecuente"
+                    nombre,lat,lng,direccion,telefono,email,contacto,categoria,provincia,notas<br><br>
+                    <strong>Categorías válidas:</strong> activo, potencial, inactivo (o variantes como "Cliente activo")
+                </div>
+                <!-- Preview container -->
+                <div id="importPreviewContainer" style="display: none;">
+                    <div class="import-preview" id="importPreview">
+                        <div class="import-preview-header">
+                            <span>Vista previa</span>
+                            <div class="import-preview-stats" id="importStats"></div>
+                        </div>
+                        <div id="importPreviewList"></div>
+                    </div>
+                    <div class="import-actions">
+                        <button type="button" class="import-select-all" id="importSelectAll">Seleccionar todos</button>
+                        <button type="button" class="import-deselect-duplicates" id="importDeselectDuplicates" style="display: none;">Desmarcar duplicados</button>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" id="importCancel">Cancelar</button>
-                <button type="button" class="btn-save" id="importConfirm">Importar</button>
+                <button type="button" class="btn-save" id="importConfirm" disabled>Importar seleccionados</button>
             </div>
         </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal-overlay" id="resetModalOverlay">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header" style="background: var(--red-500);">
+                <h2 style="color: white;">Restaurar datos</h2>
+                <button class="modal-close" id="resetModalClose" style="color: white;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 16px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--red-500)" stroke-width="2" style="margin-bottom: 12px;">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <p style="font-weight: 600; color: var(--gray-900); margin-bottom: 8px;">Esta acción no se puede deshacer</p>
+                    <p style="font-size: 0.875rem; color: var(--gray-600);">Se eliminarán todos los cambios locales y se restaurarán los <strong>158 datos de ejemplo</strong> originales.</p>
+                </div>
+                <div class="form-group">
+                    <label for="resetConfirmInput">Escribe <strong>RESET</strong> para confirmar:</label>
+                    <input type="text" id="resetConfirmInput" class="form-input" placeholder="RESET" autocomplete="off" style="text-align: center; font-weight: 600; letter-spacing: 2px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" id="resetCancel">Cancelar</button>
+                <button type="button" class="btn-delete" id="resetConfirm" disabled>Restaurar datos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Undo Toast -->
+    <div class="undo-toast" id="undoToast">
+        <span class="undo-message">Ganadería eliminada</span>
+        <button class="undo-btn" id="undoBtn">Deshacer</button>
+        <div class="undo-progress" id="undoProgress"></div>
     </div>
 
     <!-- Toast -->
@@ -2135,6 +2572,39 @@
 
         function getNextId(data) {
             return Math.max(...data.map(g => g.id || 0), 0) + 1;
+        }
+
+        // ========== CATEGORY NORMALIZATION ==========
+        const VALID_CATEGORIES = ['activo', 'potencial', 'inactivo'];
+        const CATEGORY_ALIASES = {
+            'activo': 'activo',
+            'cliente activo': 'activo',
+            'active': 'activo',
+            'a': 'activo',
+            'potencial': 'potencial',
+            'cliente potencial': 'potencial',
+            'potential': 'potencial',
+            'p': 'potencial',
+            'inactivo': 'inactivo',
+            'cliente inactivo': 'inactivo',
+            'inactive': 'inactivo',
+            'i': 'inactivo',
+            'baja': 'inactivo'
+        };
+
+        function normalizeCategory(category) {
+            if (!category) return 'activo';
+            const normalized = category.toLowerCase().trim();
+            return CATEGORY_ALIASES[normalized] || 'activo';
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                'activo': 'Cliente activo',
+                'potencial': 'Potencial',
+                'inactivo': 'Inactivo'
+            };
+            return labels[category] || 'Cliente activo';
         }
 
         // ========== STATE ==========
@@ -2579,14 +3049,7 @@
 
         function deleteGanaderia() {
             if (!editingId) return;
-
-            if (confirm('¿Estás seguro de que quieres eliminar esta ganadería?')) {
-                ganaderias = ganaderias.filter(g => g.id !== editingId);
-                saveData(ganaderias);
-                closeModal();
-                refreshList();
-                showToast('Ganadería eliminada');
-            }
+            deleteWithUndo(editingId);
         }
 
         // ========== MAP CLICK MODE ==========
@@ -2670,10 +3133,137 @@
             );
         }
 
+        // ========== GEOCODING (Búsqueda por dirección) ==========
+        let geocodeTimeout = null;
+
+        function showAddressSearchBox() {
+            const box = document.getElementById('addressSearchBox');
+            box.style.display = 'block';
+            document.getElementById('addressSearchInput').focus();
+        }
+
+        function hideAddressSearchBox() {
+            document.getElementById('addressSearchBox').style.display = 'none';
+            document.getElementById('addressSearchInput').value = '';
+            document.getElementById('addressSearchResults').innerHTML = '';
+        }
+
+        async function searchAddress(query) {
+            if (!query || query.length < 3) {
+                document.getElementById('addressSearchResults').innerHTML =
+                    '<div class="address-search-empty">Escribe al menos 3 caracteres</div>';
+                return;
+            }
+
+            const resultsContainer = document.getElementById('addressSearchResults');
+            resultsContainer.innerHTML = '<div class="address-search-loading">Buscando...</div>';
+
+            try {
+                // Nominatim API (OpenStreetMap) - gratuita
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?` +
+                    `format=json&q=${encodeURIComponent(query)}&countrycodes=es&limit=5&addressdetails=1`,
+                    {
+                        headers: {
+                            'Accept-Language': 'es'
+                        }
+                    }
+                );
+
+                if (!response.ok) throw new Error('Error en la búsqueda');
+
+                const results = await response.json();
+
+                if (results.length === 0) {
+                    resultsContainer.innerHTML =
+                        '<div class="address-search-empty">No se encontraron resultados</div>';
+                    return;
+                }
+
+                resultsContainer.innerHTML = results.map(r => {
+                    const mainText = r.address?.road || r.address?.hamlet || r.address?.village || r.address?.town || r.address?.city || r.display_name.split(',')[0];
+                    const detailText = [
+                        r.address?.municipality || r.address?.city || r.address?.town,
+                        r.address?.province || r.address?.state
+                    ].filter(Boolean).join(', ');
+
+                    return `
+                        <div class="address-result-item"
+                             data-lat="${r.lat}"
+                             data-lon="${r.lon}"
+                             data-display="${r.display_name}">
+                            <div class="result-main">${mainText}</div>
+                            <div class="result-detail">${detailText || r.display_name}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Event listeners para resultados
+                resultsContainer.querySelectorAll('.address-result-item').forEach(item => {
+                    item.addEventListener('click', () => selectAddressResult(item));
+                });
+
+            } catch (error) {
+                console.error('Geocoding error:', error);
+                resultsContainer.innerHTML =
+                    '<div class="address-search-empty">Error al buscar. Intenta de nuevo.</div>';
+            }
+        }
+
+        function selectAddressResult(item) {
+            const lat = parseFloat(item.dataset.lat);
+            const lon = parseFloat(item.dataset.lon);
+            const displayName = item.dataset.display;
+
+            // Rellenar coordenadas
+            document.getElementById('formLat').value = lat.toFixed(6);
+            document.getElementById('formLng').value = lon.toFixed(6);
+            document.getElementById('coordLat').textContent = lat.toFixed(6);
+            document.getElementById('coordLng').textContent = lon.toFixed(6);
+            document.getElementById('coordsDisplay').classList.add('show');
+
+            // Auto-rellenar dirección si está vacía
+            const direccionInput = document.getElementById('formDireccion');
+            if (!direccionInput.value.trim()) {
+                // Extraer dirección limpia
+                const parts = displayName.split(',').slice(0, 3).map(s => s.trim());
+                direccionInput.value = parts.join(', ');
+            }
+
+            // Auto-detect provincia
+            const province = getProvince(lat, lon);
+            document.getElementById('formProvincia').value = province;
+
+            // Mostrar marcador temporal
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+            }
+            tempMarker = L.marker([lat, lon], { icon: createIcon(true) }).addTo(map);
+            map.setView([lat, lon], 14);
+
+            hideAddressSearchBox();
+            showToast('Dirección seleccionada');
+        }
+
         // ========== EXPORT ==========
+        function getFilteredData() {
+            const search = normalize(document.getElementById('searchInput').value);
+            return data.filter(g => {
+                const matchSearch = normalize(g.nombre).includes(search) ||
+                                   normalize(g.direccion || '').includes(search) ||
+                                   normalize(g.contacto || '').includes(search);
+                const matchProv = !activeProvince || g.provincia === activeProvince;
+                const matchCat = !activeCategory || g.categoria === activeCategory;
+                return matchSearch && matchProv && matchCat;
+            });
+        }
+
         function exportToCSV() {
+            const filteredData = getFilteredData();
+            const hasFilters = activeProvince || activeCategory || document.getElementById('searchInput').value.length > 0;
+
             const headers = ['nombre', 'lat', 'lng', 'direccion', 'telefono', 'email', 'contacto', 'categoria', 'provincia', 'notas'];
-            const rows = data.map(g => {
+            const rows = filteredData.map(g => {
                 return headers.map(h => {
                     let val = g[h] || '';
                     if (typeof val === 'string' && (val.includes(',') || val.includes('"') || val.includes('\n'))) {
@@ -2688,26 +3278,108 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `ganaderias_proyma_${new Date().toISOString().split('T')[0]}.csv`;
+
+            // Nombre de archivo descriptivo
+            let filename = 'ganaderias_proyma';
+            if (activeProvince) filename += `_${activeProvince.toLowerCase().replace(/\s+/g, '-')}`;
+            if (activeCategory) filename += `_${activeCategory}`;
+            filename += `_${new Date().toISOString().split('T')[0]}.csv`;
+
+            link.download = filename;
             link.click();
             URL.revokeObjectURL(url);
 
-            showToast('Archivo exportado correctamente');
+            // Mensaje informativo
+            if (hasFilters) {
+                showToast(`Exportadas ${filteredData.length} de ${data.length} ganaderías (con filtros aplicados)`, 'success');
+            } else {
+                showToast(`Exportadas ${filteredData.length} ganaderías`, 'success');
+            }
         }
 
         // ========== GOOGLE SHEETS SYNC ==========
         // CONFIGURACIÓN - Reemplazar con tus URLs
         const SHEETS_CONFIG = {
             // URL pública del CSV (Archivo > Compartir > Publicar en web > CSV)
-            readUrl: '', // Ejemplo: 'https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv'
+            readUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKF1ZlgHjJbr3cySIClvJ2PpcEkZJMmB5ufeePxFx9pmmu628vW9j330tDQbfE-rebbypTBaeFvtAL/pub?output=csv', // Ejemplo: 'https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv'
             // URL del Web App de Google Apps Script para escritura
-            writeUrl: '', // Se configura después de crear el Apps Script
+            writeUrl: 'https://script.google.com/macros/s/AKfycbwcwdcIKZF3LLFmOxrcAP-TYrXn6PNBz2Md99_v7yHVVbLTOUvpZF1mtHc3_ijJ0ri7/exec', // Se configura después de crear el Apps Script
             // ID de la hoja para referencia
-            sheetId: ''
+            sheetId: 'https://docs.google.com/spreadsheets/d/1BAA8789ogSgZnaQ4GxZASqKveXS1PGe805ha7vJkgKo/edit?gid=0#gid=0'
         };
 
         let syncEnabled = false;
         let lastSyncTime = null;
+        let lastSyncError = null;
+        let lastSyncCount = 0;
+
+        // Formatear tiempo relativo
+        function formatTimeAgo(date) {
+            if (!date) return '';
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+
+            if (diff < 60) return 'hace unos segundos';
+            if (diff < 3600) return `hace ${Math.floor(diff / 60)} min`;
+            if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`;
+            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+        }
+
+        // Actualizar badge de estado de sincronización
+        function updateSyncStatus(status, count = 0) {
+            const badge = document.getElementById('syncStatus');
+            const dot = badge.querySelector('.sync-status-dot');
+            const text = badge.querySelector('.sync-status-text');
+
+            badge.classList.remove('synced', 'error', 'not-configured');
+            badge.style.display = 'flex';
+
+            if (status === 'synced') {
+                badge.classList.add('synced');
+                lastSyncCount = count;
+                const timeAgo = formatTimeAgo(lastSyncTime);
+                text.textContent = `${count} · ${timeAgo}`;
+                badge.title = `Última sincronización: ${lastSyncTime.toLocaleString('es-ES')}\n${count} ganaderías desde Sheets`;
+            } else if (status === 'error') {
+                badge.classList.add('error');
+                text.textContent = 'Error sync';
+                badge.title = `Error: ${lastSyncError || 'Fallo de conexión'}`;
+            } else if (status === 'not-configured') {
+                badge.classList.add('not-configured');
+                text.textContent = 'Sin configurar';
+                badge.title = 'Click para configurar Google Sheets';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Inicializar estado de sync al cargar
+        function initSyncStatus() {
+            const badge = document.getElementById('syncStatus');
+            badge.addEventListener('click', () => {
+                if (!isSyncConfigured()) {
+                    showSyncConfigModal();
+                } else {
+                    syncWithSheets();
+                }
+            });
+
+            if (!isSyncConfigured()) {
+                updateSyncStatus('not-configured');
+            } else {
+                // Si está configurado pero no se ha sincronizado, mostrar indicador
+                badge.style.display = 'flex';
+                badge.querySelector('.sync-status-text').textContent = 'Conectado';
+                badge.title = 'Click para sincronizar';
+            }
+
+            // Actualizar el tiempo relativo cada minuto
+            setInterval(() => {
+                if (lastSyncTime && !lastSyncError) {
+                    updateSyncStatus('synced', lastSyncCount);
+                }
+            }, 60000);
+        }
 
         // Verificar si la sincronización está configurada
         function isSyncConfigured() {
@@ -2826,11 +3498,15 @@
                     refreshList();
 
                     lastSyncTime = new Date();
+                    lastSyncError = null;
                     btn.classList.remove('syncing');
                     btn.classList.add('success');
                     textSpan.textContent = 'OK!';
 
-                    showToast(`Sincronizado: ${sheetData.length} ganaderías`, 'success');
+                    // Actualizar badge de estado
+                    updateSyncStatus('synced', sheetData.length);
+
+                    showToast(`Sincronizado: ${sheetData.length} ganaderías desde Sheets`, 'success');
 
                     setTimeout(() => {
                         btn.classList.remove('success');
@@ -2843,6 +3519,9 @@
                 btn.classList.remove('syncing');
                 btn.classList.add('error');
                 textSpan.textContent = 'Error';
+
+                lastSyncError = error.message;
+                updateSyncStatus('error');
 
                 showToast('Error al sincronizar: ' + error.message, 'error');
 
@@ -2977,33 +3656,58 @@
             }
         }
 
-        // ========== IMPORT ==========
+        // ========== IMPORT WITH PREVIEW ==========
+        let importPreviewData = [];
+
         function openImportModal() {
             document.getElementById('importModalOverlay').classList.add('show');
+            resetImportPreview();
         }
 
         function closeImportModal() {
             document.getElementById('importModalOverlay').classList.remove('show');
             document.getElementById('csvFileInput').value = '';
+            resetImportPreview();
         }
 
-        function importCSV() {
-            const fileInput = document.getElementById('csvFileInput');
-            const file = fileInput.files[0];
+        function resetImportPreview() {
+            importPreviewData = [];
+            document.getElementById('importPreviewContainer').style.display = 'none';
+            document.getElementById('importFormatInfo').style.display = 'block';
+            document.getElementById('importConfirm').disabled = true;
+            document.getElementById('importPreviewList').innerHTML = '';
+        }
 
-            if (!file) {
-                showToast('Selecciona un archivo CSV', 'error');
-                return;
-            }
-
+        function previewCSV(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const text = e.target.result;
                     const lines = text.split('\n').filter(l => l.trim());
+
+                    if (lines.length < 2) {
+                        showToast('El archivo está vacío o no tiene datos', 'error');
+                        return;
+                    }
+
                     const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
 
-                    let imported = 0;
+                    // Validar headers mínimos
+                    const requiredHeaders = ['nombre', 'lat', 'lng'];
+                    const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+                    if (missingHeaders.length > 0) {
+                        showToast(`Faltan columnas obligatorias: ${missingHeaders.join(', ')}`, 'error');
+                        return;
+                    }
+
+                    // Obtener nombres existentes para detectar duplicados
+                    const existingNames = new Set(ganaderias.map(g => g.nombre.toLowerCase().trim()));
+
+                    importPreviewData = [];
+                    let validCount = 0;
+                    let duplicateCount = 0;
+                    let invalidCount = 0;
+
                     for (let i = 1; i < lines.length; i++) {
                         const values = parseCSVLine(lines[i]);
                         if (values.length < 3) continue;
@@ -3013,41 +3717,176 @@
                             obj[h] = values[idx] ? values[idx].replace(/^"|"$/g, '').trim() : '';
                         });
 
-                        if (!obj.nombre || !obj.lat || !obj.lng) continue;
+                        const lat = parseFloat(obj.lat);
+                        const lng = parseFloat(obj.lng);
+                        const isValid = obj.nombre && !isNaN(lat) && !isNaN(lng);
+                        const isDuplicate = existingNames.has(obj.nombre?.toLowerCase().trim());
 
-                        const newItem = {
-                            id: getNextId(ganaderias),
-                            nombre: obj.nombre,
-                            lat: parseFloat(obj.lat),
-                            lng: parseFloat(obj.lng),
+                        const item = {
+                            index: i,
+                            nombre: obj.nombre || '(sin nombre)',
+                            lat: lat,
+                            lng: lng,
                             direccion: obj.direccion || '',
                             telefono: obj.telefono || '',
                             email: obj.email || '',
                             contacto: obj.contacto || '',
-                            categoria: obj.categoria || 'activo',
-                            provincia: obj.provincia || getProvince(parseFloat(obj.lat), parseFloat(obj.lng)),
-                            notas: obj.notas || ''
+                            categoria: normalizeCategory(obj.categoria),
+                            provincia: obj.provincia || (isValid ? getProvince(lat, lng) : ''),
+                            notas: obj.notas || '',
+                            isValid: isValid,
+                            isDuplicate: isDuplicate,
+                            selected: isValid && !isDuplicate // Pre-seleccionar solo válidos no duplicados
                         };
 
-                        ganaderias.push(newItem);
-                        imported++;
+                        importPreviewData.push(item);
+
+                        if (!isValid) invalidCount++;
+                        else if (isDuplicate) duplicateCount++;
+                        else validCount++;
                     }
 
-                    if (imported > 0) {
-                        saveData(ganaderias);
-                        refreshList();
-                        showToast(`${imported} ganaderías importadas correctamente`);
-                    } else {
-                        showToast('No se encontraron registros válidos', 'error');
-                    }
-
-                    closeImportModal();
+                    renderImportPreview(validCount, duplicateCount, invalidCount);
                 } catch (err) {
                     console.error(err);
                     showToast('Error al procesar el archivo', 'error');
                 }
             };
             reader.readAsText(file);
+        }
+
+        function renderImportPreview(validCount, duplicateCount, invalidCount) {
+            const container = document.getElementById('importPreviewContainer');
+            const list = document.getElementById('importPreviewList');
+            const stats = document.getElementById('importStats');
+
+            // Mostrar estadísticas
+            stats.innerHTML = `
+                <span class="stat valid">${validCount} nuevos</span>
+                ${duplicateCount > 0 ? `<span class="stat warning">${duplicateCount} duplicados</span>` : ''}
+                ${invalidCount > 0 ? `<span class="stat error">${invalidCount} inválidos</span>` : ''}
+            `;
+
+            // Mostrar/ocultar botón de desmarcar duplicados
+            document.getElementById('importDeselectDuplicates').style.display =
+                duplicateCount > 0 ? 'inline-block' : 'none';
+
+            // Renderizar lista
+            list.innerHTML = importPreviewData.map((item, idx) => {
+                let statusClass = '';
+                let badge = '';
+
+                if (!item.isValid) {
+                    statusClass = 'invalid';
+                    badge = '<span class="import-preview-badge invalid">Datos inválidos</span>';
+                } else if (item.isDuplicate) {
+                    statusClass = 'duplicate';
+                    badge = '<span class="import-preview-badge duplicate">Ya existe</span>';
+                } else {
+                    badge = '<span class="import-preview-badge new">Nuevo</span>';
+                }
+
+                return `
+                    <div class="import-preview-item ${statusClass}">
+                        <input type="checkbox" class="import-preview-checkbox"
+                               data-index="${idx}"
+                               ${item.selected ? 'checked' : ''}
+                               ${!item.isValid ? 'disabled' : ''}>
+                        <div class="import-preview-content">
+                            <div class="import-preview-name">${item.nombre}</div>
+                            <div class="import-preview-detail">
+                                ${badge}
+                                <span>${item.provincia || 'Sin provincia'}</span>
+                                <span>${item.categoria}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Event listeners para checkboxes
+            list.querySelectorAll('.import-preview-checkbox').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    const idx = parseInt(e.target.dataset.index);
+                    importPreviewData[idx].selected = e.target.checked;
+                    updateImportButton();
+                });
+            });
+
+            container.style.display = 'block';
+            document.getElementById('importFormatInfo').style.display = 'none';
+            updateImportButton();
+        }
+
+        function updateImportButton() {
+            const selectedCount = importPreviewData.filter(item => item.selected).length;
+            const btn = document.getElementById('importConfirm');
+            btn.disabled = selectedCount === 0;
+            btn.textContent = selectedCount > 0
+                ? `Importar ${selectedCount} seleccionados`
+                : 'Importar seleccionados';
+        }
+
+        function importSelectAll() {
+            importPreviewData.forEach(item => {
+                if (item.isValid) item.selected = true;
+            });
+            document.querySelectorAll('.import-preview-checkbox:not(:disabled)').forEach(cb => {
+                cb.checked = true;
+            });
+            updateImportButton();
+        }
+
+        function importDeselectDuplicates() {
+            importPreviewData.forEach((item, idx) => {
+                if (item.isDuplicate) {
+                    item.selected = false;
+                    const cb = document.querySelector(`.import-preview-checkbox[data-index="${idx}"]`);
+                    if (cb) cb.checked = false;
+                }
+            });
+            updateImportButton();
+            showToast('Duplicados desmarcados');
+        }
+
+        function importCSV() {
+            const toImport = importPreviewData.filter(item => item.selected && item.isValid);
+
+            if (toImport.length === 0) {
+                showToast('No hay registros seleccionados para importar', 'error');
+                return;
+            }
+
+            let imported = 0;
+            toImport.forEach(item => {
+                const newItem = {
+                    id: getNextId(ganaderias),
+                    nombre: item.nombre,
+                    lat: item.lat,
+                    lng: item.lng,
+                    direccion: item.direccion,
+                    telefono: item.telefono,
+                    email: item.email,
+                    contacto: item.contacto,
+                    categoria: item.categoria,
+                    provincia: item.provincia,
+                    notas: item.notas
+                };
+                ganaderias.push(newItem);
+                imported++;
+            });
+
+            saveData(ganaderias);
+            refreshList();
+
+            const duplicatesSkipped = importPreviewData.filter(item => item.isDuplicate && !item.selected).length;
+            let message = `${imported} ganaderías importadas`;
+            if (duplicatesSkipped > 0) {
+                message += ` (${duplicatesSkipped} duplicados omitidos)`;
+            }
+            showToast(message, 'success');
+
+            closeImportModal();
         }
 
         function parseCSVLine(line) {
@@ -3157,9 +3996,30 @@
         // Location picker
         document.getElementById('btnPickMap').addEventListener('click', enableMapClickMode);
         document.getElementById('btnUseGPS').addEventListener('click', useGPS);
+        document.getElementById('btnSearchAddress').addEventListener('click', showAddressSearchBox);
         document.getElementById('btnManualCoords').addEventListener('click', () => {
             const row = document.getElementById('manualCoordsRow');
             row.style.display = row.style.display === 'none' ? 'grid' : 'none';
+        });
+
+        // Address search
+        document.getElementById('btnDoAddressSearch').addEventListener('click', () => {
+            searchAddress(document.getElementById('addressSearchInput').value);
+        });
+        document.getElementById('addressSearchInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchAddress(e.target.value);
+            }
+        });
+        // Debounce para búsqueda automática mientras escribe
+        document.getElementById('addressSearchInput').addEventListener('input', (e) => {
+            clearTimeout(geocodeTimeout);
+            geocodeTimeout = setTimeout(() => {
+                if (e.target.value.length >= 3) {
+                    searchAddress(e.target.value);
+                }
+            }, 500);
         });
 
         // Manual coords change
@@ -3179,9 +4039,23 @@
         });
 
         // Reset data
-        function resetData() {
-            if (confirm('¿Estás seguro? Esto restaurará los datos de ejemplo y eliminará todos los cambios.')) {
+        // ========== RESET WITH CONFIRMATION ==========
+        function openResetModal() {
+            document.getElementById('resetConfirmInput').value = '';
+            document.getElementById('resetConfirm').disabled = true;
+            document.getElementById('resetModalOverlay').classList.add('show');
+            document.getElementById('resetConfirmInput').focus();
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModalOverlay').classList.remove('show');
+        }
+
+        function confirmReset() {
+            const input = document.getElementById('resetConfirmInput').value.trim().toUpperCase();
+            if (input === 'RESET') {
                 localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem('proyma_sheets_config');
                 // Add province to each ganaderia
                 ganaderias = initialData.map(g => ({
                     ...g,
@@ -3189,8 +4063,92 @@
                 }));
                 saveData(ganaderias);
                 refreshList();
-                showToast('Datos restaurados correctamente');
+                closeResetModal();
+                showToast('Datos restaurados correctamente', 'success');
             }
+        }
+
+        // Enable/disable reset button based on input
+        document.getElementById('resetConfirmInput')?.addEventListener('input', (e) => {
+            const isValid = e.target.value.trim().toUpperCase() === 'RESET';
+            document.getElementById('resetConfirm').disabled = !isValid;
+        });
+
+        // ========== DELETE WITH UNDO ==========
+        let deletedGanaderia = null;
+        let undoTimeout = null;
+
+        function deleteWithUndo(id) {
+            const g = ganaderias.find(x => x.id === id);
+            if (!g) return;
+
+            // Store for undo
+            deletedGanaderia = { ...g, originalIndex: ganaderias.indexOf(g) };
+
+            // Remove from array
+            ganaderias = ganaderias.filter(x => x.id !== id);
+            saveData(ganaderias);
+            refreshList();
+            closeModal();
+
+            // Show undo toast
+            showUndoToast(`"${g.nombre}" eliminada`);
+        }
+
+        function showUndoToast(message) {
+            const toast = document.getElementById('undoToast');
+            const messageEl = toast.querySelector('.undo-message');
+            const progress = document.getElementById('undoProgress');
+
+            messageEl.textContent = message;
+
+            // Reset animation
+            progress.style.animation = 'none';
+            progress.offsetHeight; // Trigger reflow
+            progress.style.animation = 'undoCountdown 10s linear forwards';
+
+            toast.classList.add('show');
+
+            // Clear previous timeout
+            if (undoTimeout) clearTimeout(undoTimeout);
+
+            // Auto-hide after 10s
+            undoTimeout = setTimeout(() => {
+                hideUndoToast();
+                deletedGanaderia = null;
+            }, 10000);
+        }
+
+        function hideUndoToast() {
+            document.getElementById('undoToast').classList.remove('show');
+        }
+
+        function undoDelete() {
+            if (!deletedGanaderia) return;
+
+            // Restore at original position or end
+            const index = Math.min(deletedGanaderia.originalIndex, ganaderias.length);
+            ganaderias.splice(index, 0, deletedGanaderia);
+
+            // Reassign IDs
+            ganaderias = ganaderias.map((g, i) => ({ ...g, id: i + 1 }));
+
+            saveData(ganaderias);
+            refreshList();
+            hideUndoToast();
+
+            showToast(`"${deletedGanaderia.nombre}" restaurada`, 'success');
+            deletedGanaderia = null;
+
+            if (undoTimeout) {
+                clearTimeout(undoTimeout);
+                undoTimeout = null;
+            }
+        }
+
+        // Legacy function - now opens modal
+        function resetData() {
+            openResetModal();
         }
 
         // Export/Import/Reset/Sync
@@ -3207,6 +4165,25 @@
         document.getElementById('importModalOverlay').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeImportModal();
         });
+
+        // Import preview events
+        document.getElementById('csvFileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) previewCSV(file);
+        });
+        document.getElementById('importSelectAll').addEventListener('click', importSelectAll);
+        document.getElementById('importDeselectDuplicates').addEventListener('click', importDeselectDuplicates);
+
+        // Reset modal events
+        document.getElementById('resetModalClose').addEventListener('click', closeResetModal);
+        document.getElementById('resetCancel').addEventListener('click', closeResetModal);
+        document.getElementById('resetConfirm').addEventListener('click', confirmReset);
+        document.getElementById('resetModalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeResetModal();
+        });
+
+        // Undo button
+        document.getElementById('undoBtn').addEventListener('click', undoDelete);
 
         // ========== MOBILE NAV ==========
         function showView(view) {
@@ -3245,6 +4222,7 @@
 
         // Init
         refreshList();
+        initSyncStatus();
     </script>
 </body>
 </html>
