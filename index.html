@@ -316,6 +316,87 @@
             height: 14px;
         }
 
+        /* Sync button */
+        .sync-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(52, 168, 83, 0.3);
+        }
+
+        .sync-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.4);
+        }
+
+        .sync-btn:active {
+            transform: translateY(0);
+        }
+
+        .sync-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .sync-btn.syncing .sync-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        .sync-btn.syncing {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .sync-btn.success {
+            background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
+        }
+
+        .sync-btn.error {
+            background: linear-gradient(135deg, #ea4335 0%, #c5221f 100%);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Sync status indicator */
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--gray-100);
+            border-radius: 100px;
+            font-size: 0.6875rem;
+            color: var(--gray-500);
+        }
+
+        .sync-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gray-400);
+        }
+
+        .sync-status-dot.connected {
+            background: #34a853;
+            box-shadow: 0 0 6px rgba(52, 168, 83, 0.5);
+        }
+
+        .sync-status-dot.offline {
+            background: var(--gray-400);
+        }
+
         .list-container {
             flex: 1;
             overflow-y: auto;
@@ -1622,7 +1703,13 @@
 
             <div class="results-bar">
                 <span id="resultsCount">Cargando...</span>
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="sync-btn" id="btnSync" title="Sincronizar con Google Sheets">
+                        <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                        </svg>
+                        <span class="sync-text">Sync</span>
+                    </button>
                     <button class="export-btn" id="btnReset" style="background: var(--gray-100); color: var(--gray-600);" title="Restaurar datos de ejemplo">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -2608,6 +2695,288 @@
             showToast('Archivo exportado correctamente');
         }
 
+        // ========== GOOGLE SHEETS SYNC ==========
+        // CONFIGURACIÓN - Reemplazar con tus URLs
+        const SHEETS_CONFIG = {
+            // URL pública del CSV (Archivo > Compartir > Publicar en web > CSV)
+            readUrl: '', // Ejemplo: 'https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv'
+            // URL del Web App de Google Apps Script para escritura
+            writeUrl: '', // Se configura después de crear el Apps Script
+            // ID de la hoja para referencia
+            sheetId: ''
+        };
+
+        let syncEnabled = false;
+        let lastSyncTime = null;
+
+        // Verificar si la sincronización está configurada
+        function isSyncConfigured() {
+            return SHEETS_CONFIG.readUrl && SHEETS_CONFIG.readUrl.length > 0;
+        }
+
+        // Leer datos desde Google Sheets
+        async function fetchFromSheets() {
+            if (!isSyncConfigured()) {
+                showSyncConfigModal();
+                return null;
+            }
+
+            try {
+                const response = await fetch(SHEETS_CONFIG.readUrl);
+                if (!response.ok) throw new Error('Error al conectar con Google Sheets');
+
+                const csvText = await response.text();
+                const rows = csvText.split('\n').map(row => {
+                    // Parsear CSV correctamente (manejar comas dentro de comillas)
+                    const result = [];
+                    let current = '';
+                    let inQuotes = false;
+                    for (let char of row) {
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            result.push(current.trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    result.push(current.trim());
+                    return result;
+                });
+
+                if (rows.length < 2) return [];
+
+                const headers = rows[0].map(h => h.toLowerCase().trim());
+                const dataRows = rows.slice(1).filter(row => row.some(cell => cell));
+
+                return dataRows.map((row, index) => {
+                    const obj = { id: index + 1 };
+                    headers.forEach((header, i) => {
+                        if (header === 'lat' || header === 'lng') {
+                            obj[header] = parseFloat(row[i]) || 0;
+                        } else if (header === 'id') {
+                            obj.id = parseInt(row[i]) || index + 1;
+                        } else {
+                            obj[header] = row[i] || '';
+                        }
+                    });
+                    // Asegurar provincia
+                    if (!obj.provincia && obj.lat && obj.lng) {
+                        obj.provincia = getProvince(obj.lat, obj.lng);
+                    }
+                    return obj;
+                }).filter(g => g.nombre && g.lat && g.lng);
+            } catch (error) {
+                console.error('Error fetching from Sheets:', error);
+                throw error;
+            }
+        }
+
+        // Enviar datos a Google Sheets (vía Apps Script Web App)
+        async function pushToSheets(data) {
+            if (!SHEETS_CONFIG.writeUrl) {
+                showToast('Escritura a Sheets no configurada', 'error');
+                return false;
+            }
+
+            try {
+                const response = await fetch(SHEETS_CONFIG.writeUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Apps Script requiere no-cors
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ganaderias: data })
+                });
+                return true;
+            } catch (error) {
+                console.error('Error pushing to Sheets:', error);
+                throw error;
+            }
+        }
+
+        // Sincronización principal
+        async function syncWithSheets() {
+            const btn = document.getElementById('btnSync');
+            const textSpan = btn.querySelector('.sync-text');
+
+            if (!isSyncConfigured()) {
+                showSyncConfigModal();
+                return;
+            }
+
+            // Mostrar estado de sincronización
+            btn.classList.add('syncing');
+            textSpan.textContent = 'Sync...';
+
+            try {
+                // 1. Obtener datos de Google Sheets
+                const sheetData = await fetchFromSheets();
+
+                if (sheetData && sheetData.length > 0) {
+                    // 2. Merge de datos (Sheets tiene prioridad para datos existentes)
+                    const mergedData = mergeGanaderias(ganaderias, sheetData);
+
+                    // 3. Guardar localmente
+                    ganaderias = mergedData;
+                    saveData(ganaderias);
+
+                    // 4. Actualizar UI
+                    refreshList();
+
+                    lastSyncTime = new Date();
+                    btn.classList.remove('syncing');
+                    btn.classList.add('success');
+                    textSpan.textContent = 'OK!';
+
+                    showToast(`Sincronizado: ${sheetData.length} ganaderías`, 'success');
+
+                    setTimeout(() => {
+                        btn.classList.remove('success');
+                        textSpan.textContent = 'Sync';
+                    }, 2000);
+                } else {
+                    throw new Error('No se encontraron datos en la hoja');
+                }
+            } catch (error) {
+                btn.classList.remove('syncing');
+                btn.classList.add('error');
+                textSpan.textContent = 'Error';
+
+                showToast('Error al sincronizar: ' + error.message, 'error');
+
+                setTimeout(() => {
+                    btn.classList.remove('error');
+                    textSpan.textContent = 'Sync';
+                }, 3000);
+            }
+        }
+
+        // Merge inteligente de datos
+        function mergeGanaderias(local, remote) {
+            const merged = new Map();
+
+            // Primero añadir todos los remotos (tienen prioridad)
+            remote.forEach(g => {
+                const key = g.nombre.toLowerCase().trim();
+                merged.set(key, { ...g });
+            });
+
+            // Luego añadir locales que no existan en remoto
+            local.forEach(g => {
+                const key = g.nombre.toLowerCase().trim();
+                if (!merged.has(key)) {
+                    merged.set(key, { ...g });
+                }
+            });
+
+            // Convertir a array y reasignar IDs
+            return Array.from(merged.values()).map((g, index) => ({
+                ...g,
+                id: index + 1
+            }));
+        }
+
+        // Modal de configuración de sincronización
+        function showSyncConfigModal() {
+            const currentReadUrl = SHEETS_CONFIG.readUrl || '';
+            const currentWriteUrl = SHEETS_CONFIG.writeUrl || '';
+
+            // Crear modal dinámicamente
+            const modalHtml = `
+                <div class="modal-overlay show" id="syncConfigOverlay">
+                    <div class="modal" style="max-width: 500px;">
+                        <div class="modal-header">
+                            <h2>Configurar Google Sheets</h2>
+                            <button class="modal-close" onclick="closeSyncConfigModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 6L6 18M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="sync-config-steps">
+                                <div class="step">
+                                    <h4>1. Crear Google Sheet</h4>
+                                    <p>Crea una hoja con estas columnas en la fila 1:</p>
+                                    <code>id, nombre, lat, lng, direccion, telefono, email, contacto, categoria, provincia, notas</code>
+                                </div>
+                                <div class="step">
+                                    <h4>2. Publicar como CSV</h4>
+                                    <p>Archivo → Compartir → Publicar en web → CSV</p>
+                                </div>
+                                <div class="step">
+                                    <h4>3. Pegar URL aquí:</h4>
+                                    <input type="url" id="syncReadUrl" class="form-input" placeholder="https://docs.google.com/spreadsheets/d/e/..." value="${currentReadUrl}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-cancel" onclick="closeSyncConfigModal()">Cancelar</button>
+                            <button class="btn-save" onclick="saveSyncConfig()">Guardar y Probar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Añadir estilos adicionales si no existen
+            if (!document.getElementById('syncConfigStyles')) {
+                const styles = document.createElement('style');
+                styles.id = 'syncConfigStyles';
+                styles.textContent = `
+                    .sync-config-steps { display: flex; flex-direction: column; gap: 16px; }
+                    .sync-config-steps .step { background: var(--gray-50); padding: 12px; border-radius: 8px; }
+                    .sync-config-steps h4 { margin-bottom: 6px; color: var(--primary-dark); }
+                    .sync-config-steps p { font-size: 0.875rem; color: var(--gray-600); margin-bottom: 8px; }
+                    .sync-config-steps code { display: block; background: var(--gray-200); padding: 8px; border-radius: 4px; font-size: 0.75rem; overflow-x: auto; }
+                `;
+                document.head.appendChild(styles);
+            }
+        }
+
+        function closeSyncConfigModal() {
+            const modal = document.getElementById('syncConfigOverlay');
+            if (modal) modal.remove();
+        }
+
+        async function saveSyncConfig() {
+            const readUrl = document.getElementById('syncReadUrl').value.trim();
+
+            if (!readUrl) {
+                showToast('Por favor, introduce la URL de la hoja', 'error');
+                return;
+            }
+
+            // Guardar configuración
+            SHEETS_CONFIG.readUrl = readUrl;
+            localStorage.setItem('proyma_sheets_config', JSON.stringify(SHEETS_CONFIG));
+
+            closeSyncConfigModal();
+
+            // Probar conexión
+            showToast('Probando conexión...', 'success');
+            await syncWithSheets();
+        }
+
+        // Cargar configuración guardada
+        function loadSyncConfig() {
+            const saved = localStorage.getItem('proyma_sheets_config');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    SHEETS_CONFIG.readUrl = config.readUrl || '';
+                    SHEETS_CONFIG.writeUrl = config.writeUrl || '';
+                    SHEETS_CONFIG.sheetId = config.sheetId || '';
+                    syncEnabled = !!SHEETS_CONFIG.readUrl;
+                } catch (e) {
+                    console.error('Error loading sync config:', e);
+                }
+            }
+        }
+
         // ========== IMPORT ==========
         function openImportModal() {
             document.getElementById('importModalOverlay').classList.add('show');
@@ -2824,10 +3193,14 @@
             }
         }
 
-        // Export/Import/Reset
+        // Export/Import/Reset/Sync
         document.getElementById('btnReset').addEventListener('click', resetData);
         document.getElementById('btnExport').addEventListener('click', exportToCSV);
         document.getElementById('btnImport').addEventListener('click', openImportModal);
+        document.getElementById('btnSync').addEventListener('click', syncWithSheets);
+
+        // Cargar configuración de sincronización
+        loadSyncConfig();
         document.getElementById('importModalClose').addEventListener('click', closeImportModal);
         document.getElementById('importCancel').addEventListener('click', closeImportModal);
         document.getElementById('importConfirm').addEventListener('click', importCSV);
