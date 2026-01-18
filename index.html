@@ -419,21 +419,21 @@
 
         /* Custom marker */
         .marker-pin {
-            width: 32px;
-            height: 42px;
+            width: 24px;
+            height: 32px;
             position: relative;
         }
 
         .marker-pin::before {
             content: '';
             position: absolute;
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             background: var(--primary-600);
-            border: 3px solid white;
+            border: 2px solid white;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             left: 0;
             top: 0;
         }
@@ -441,12 +441,12 @@
         .marker-pin::after {
             content: '';
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             background: white;
             border-radius: 50%;
-            left: 10px;
-            top: 7px;
+            left: 8px;
+            top: 6px;
         }
 
         .marker-pin.active::before {
@@ -464,7 +464,7 @@
             }
 
             .sidebar {
-                display: none;
+                display: flex;
                 width: 100%;
                 min-width: 100%;
                 height: calc(100% - 60px);
@@ -474,8 +474,8 @@
                 z-index: 200;
             }
 
-            .sidebar.show {
-                display: flex;
+            .sidebar.hide {
+                display: none;
             }
 
             .sidebar-header {
@@ -549,10 +549,11 @@
                 top: 0;
                 left: 0;
                 width: 100%;
+                display: none;
             }
 
-            .map-container.hide {
-                display: none;
+            .map-container.show {
+                display: block;
             }
 
             .map-controls {
@@ -690,13 +691,13 @@
 
         <!-- Mobile Navigation -->
         <nav class="mobile-nav">
-            <button class="mobile-nav-btn active" id="navMap" data-view="map">
+            <button class="mobile-nav-btn" id="navMap" data-view="map">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
                 </svg>
                 <span>Mapa</span>
             </button>
-            <button class="mobile-nav-btn" id="navList" data-view="list">
+            <button class="mobile-nav-btn active" id="navList" data-view="list">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
                 </svg>
@@ -897,9 +898,9 @@
         // Custom icon
         const createIcon = (active = false) => L.divIcon({
             className: `marker-pin ${active ? 'active' : ''}`,
-            iconSize: [32, 42],
-            iconAnchor: [16, 42],
-            popupAnchor: [0, -42]
+            iconSize: [24, 32],
+            iconAnchor: [12, 32],
+            popupAnchor: [0, -32]
         });
 
         // ========== STATE ==========
@@ -1121,14 +1122,14 @@
             const navList = document.getElementById('navList');
 
             if (view === 'map') {
-                sidebar.classList.remove('show');
-                mapContainer.classList.remove('hide');
+                sidebar.classList.add('hide');
+                mapContainer.classList.add('show');
                 navMap.classList.add('active');
                 navList.classList.remove('active');
                 map.invalidateSize();
             } else {
-                sidebar.classList.add('show');
-                mapContainer.classList.add('hide');
+                sidebar.classList.remove('hide');
+                mapContainer.classList.remove('show');
                 navMap.classList.remove('active');
                 navList.classList.add('active');
             }
@@ -1140,8 +1141,8 @@
         // Handle resize
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
-                document.getElementById('sidebar').classList.remove('show');
-                document.getElementById('mapContainer').classList.remove('hide');
+                document.getElementById('sidebar').classList.remove('hide');
+                document.getElementById('mapContainer').classList.remove('show');
             }
             map.invalidateSize();
         });
