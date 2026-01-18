@@ -6,6 +6,11 @@
     <meta name="theme-color" content="#1e3a5f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Proyma">
+    <meta name="application-name" content="Proyma Ganaderías">
+    <meta name="description" content="Mapa interactivo de ganaderías clientes de Proyma Ganadera">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <title>Ganaderias Proyma | Mapa Interactivo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1739,6 +1744,98 @@
             background: rgba(249, 171, 0, 0.2);
         }
 
+        /* PWA Install Banner */
+        .install-banner {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .install-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-dark);
+            font-weight: 500;
+        }
+
+        .install-banner-content svg {
+            color: var(--primary-light);
+        }
+
+        .install-banner-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .install-banner-btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .install-banner-btn.install {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+        }
+
+        .install-banner-btn.install:hover {
+            background: var(--primary-700);
+        }
+
+        .install-banner-btn.dismiss {
+            background: transparent;
+            color: var(--gray-500);
+            border: 1px solid var(--gray-300);
+        }
+
+        .install-banner-btn.dismiss:hover {
+            background: var(--gray-100);
+        }
+
+        @media (max-width: 768px) {
+            .install-banner {
+                bottom: 70px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            @keyframes slideUp {
+                from { transform: translateY(100px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+
+            .install-banner-actions {
+                width: 100%;
+            }
+
+            .install-banner-btn {
+                flex: 1;
+            }
+        }
+
         /* ========== PREMIUM ANIMATIONS ========== */
         @keyframes fadeInUp {
             from {
@@ -2368,6 +2465,22 @@
 
     <!-- Toast -->
     <div class="toast" id="toast"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="install-banner" id="installBanner" style="display: none;">
+        <div class="install-banner-content">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Instalar como app</span>
+        </div>
+        <div class="install-banner-actions">
+            <button class="install-banner-btn install" id="installBtn">Instalar</button>
+            <button class="install-banner-btn dismiss" id="installDismiss">Ahora no</button>
+        </div>
+    </div>
 
     <!-- Hidden file input for import -->
     <input type="file" id="fileInput" accept=".csv" style="display: none;">
@@ -4223,6 +4336,58 @@
         // Init
         refreshList();
         initSyncStatus();
+
+        // ========== PWA INSTALL ==========
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            const banner = document.getElementById('installBanner');
+            if (banner) {
+                banner.style.display = 'flex';
+            }
+        }
+
+        function hideInstallBanner() {
+            const banner = document.getElementById('installBanner');
+            if (banner) {
+                banner.style.display = 'none';
+            }
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast('App instalada correctamente', 'success');
+                    }
+                    deferredPrompt = null;
+                    hideInstallBanner();
+                });
+            }
+        }
+
+        document.getElementById('installBtn')?.addEventListener('click', installApp);
+        document.getElementById('installDismiss')?.addEventListener('click', hideInstallBanner);
+
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registrado:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('SW registro fallido:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
