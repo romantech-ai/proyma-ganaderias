@@ -2,32 +2,23 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Ganaderias | Proyma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#166534">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Ganaderias Proyma | Mapa Interactivo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        /* ================================================
-           CSS VARIABLES
-           ================================================ */
         :root {
             --primary: #166534;
             --primary-light: #22c55e;
-            --primary-dark: #14532d;
             --primary-50: #f0fdf4;
             --primary-100: #dcfce7;
-            --primary-200: #bbf7d0;
             --primary-600: #16a34a;
             --primary-700: #15803d;
-            --primary-800: #166534;
-            --primary-900: #14532d;
-
-            --accent: #eab308;
-            --accent-light: #fde047;
-            --accent-50: #fefce8;
-
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
@@ -38,192 +29,97 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
-
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-
-            --radius: 1rem;
-            --radius-lg: 1.5rem;
-            --radius-xl: 2rem;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
-        /* ================================================
-           RESET & BASE
-           ================================================ */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        html {
-            scroll-behavior: smooth;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 50%, var(--accent-50) 100%);
-            color: var(--gray-900);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        ::selection {
-            background: var(--primary-200);
-            color: var(--primary-900);
-        }
-
-        /* ================================================
-           LAYOUT
-           ================================================ */
-        .app-container {
-            display: flex;
-            width: 100%;
-            height: 100vh;
+        html, body {
+            height: 100%;
             overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ================================================
-           SIDEBAR
-           ================================================ */
+        /* ========== DESKTOP LAYOUT ========== */
+        .app {
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+        }
+
         .sidebar {
-            width: 420px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            width: 400px;
+            min-width: 400px;
+            background: white;
             display: flex;
             flex-direction: column;
-            z-index: 1000;
-            box-shadow: var(--shadow-xl);
+            border-right: 1px solid var(--gray-200);
+            z-index: 100;
         }
 
-        /* Header */
-        .header {
-            padding: 32px 28px;
-            background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-700) 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-            pointer-events: none;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 100px;
-            margin-bottom: 16px;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo-icon {
-            width: 24px;
-            height: 24px;
-            background: var(--accent);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-icon svg {
-            width: 14px;
-            height: 14px;
-            color: var(--primary-900);
-        }
-
-        .logo-text {
-            font-size: 0.875rem;
-            font-weight: 600;
+        .sidebar-header {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-700) 100%);
             color: white;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
         }
 
-        .header h1 {
-            font-size: 1.75rem;
+        .sidebar-header h1 {
+            font-size: 1.5rem;
             font-weight: 800;
-            color: white;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
+            margin-bottom: 4px;
         }
 
-        .header p {
-            font-size: 0.9375rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 400;
+        .sidebar-header p {
+            font-size: 0.875rem;
+            opacity: 0.9;
         }
 
-        /* Search */
-        .search-container {
-            padding: 24px 28px;
+        .search-section {
+            padding: 16px;
             background: white;
             border-bottom: 1px solid var(--gray-100);
         }
 
-        .search-wrapper {
+        .search-box {
             position: relative;
         }
 
-        .search-icon {
+        .search-box input {
+            width: 100%;
+            padding: 14px 44px 14px 44px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--gray-50);
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .search-box .icon-search {
             position: absolute;
-            left: 18px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--gray-400);
             pointer-events: none;
-            transition: color 0.2s ease;
         }
 
-        .search-icon svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 16px 44px 16px 52px;
-            border: 2px solid var(--gray-100);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-family: inherit;
-            color: var(--gray-900);
-            background: var(--gray-50);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .search-clear {
+        .search-box .btn-clear {
             position: absolute;
-            right: 14px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border: none;
             background: var(--gray-200);
             border-radius: 50%;
@@ -231,356 +127,170 @@
             display: none;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .search-clear:hover {
-            background: var(--gray-300);
-        }
-
-        .search-clear svg {
-            width: 14px;
-            height: 14px;
             color: var(--gray-600);
         }
 
-        .search-clear.visible {
+        .search-box .btn-clear.show { display: flex; }
+        .search-box .btn-clear:hover { background: var(--gray-300); }
+
+        .filters {
+            padding: 12px 16px;
             display: flex;
-        }
-
-        .search-input::placeholder {
-            color: var(--gray-400);
-        }
-
-        .search-input:hover {
-            border-color: var(--gray-200);
-            background: white;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-600);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
-        }
-
-        .search-input:focus + .search-icon,
-        .search-wrapper:focus-within .search-icon {
-            color: var(--primary-600);
-        }
-
-        /* Results count */
-        .results-info {
-            padding: 16px 28px;
+            gap: 8px;
+            flex-wrap: wrap;
             background: var(--gray-50);
             border-bottom: 1px solid var(--gray-100);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
 
-        .results-count {
-            font-size: 0.875rem;
-            color: var(--gray-600);
-            font-weight: 500;
-        }
-
-        .results-count strong {
-            color: var(--primary-700);
-            font-weight: 700;
-        }
-
-        .view-toggle {
-            display: flex;
-            gap: 4px;
-            padding: 4px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .view-btn {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--gray-500);
-            transition: all 0.2s ease;
-        }
-
-        .view-btn.active {
-            background: var(--primary-600);
-            color: white;
-        }
-
-        .view-btn:hover:not(.active) {
-            background: var(--gray-100);
-            color: var(--gray-700);
-        }
-
-        /* Province filters */
-        .filters-container {
-            padding: 16px 28px;
-            background: white;
-            border-bottom: 1px solid var(--gray-100);
-        }
-
-        .filters-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--gray-500);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 10px;
-        }
-
-        .filters-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .filter-chip {
-            padding: 8px 14px;
+        .filter-btn {
+            padding: 8px 16px;
             border: 1px solid var(--gray-200);
             background: white;
             border-radius: 100px;
-            cursor: pointer;
             font-size: 0.8125rem;
             font-weight: 500;
             color: var(--gray-600);
-            transition: all 0.2s ease;
+            cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .filter-chip:hover {
-            border-color: var(--primary-300);
+        .filter-btn:hover {
+            border-color: var(--primary-600);
             color: var(--primary-700);
-            background: var(--primary-50);
         }
 
-        .filter-chip.active {
-            border-color: var(--primary-600);
+        .filter-btn.active {
             background: var(--primary-600);
+            border-color: var(--primary-600);
             color: white;
         }
 
-        .filter-chip .count {
+        .filter-btn .count {
             font-size: 0.6875rem;
             padding: 2px 6px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.08);
             border-radius: 100px;
         }
 
-        .filter-chip.active .count {
+        .filter-btn.active .count {
             background: rgba(255,255,255,0.2);
         }
 
-        /* List container */
+        .results-bar {
+            padding: 12px 16px;
+            font-size: 0.8125rem;
+            color: var(--gray-500);
+            background: white;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .results-bar strong {
+            color: var(--primary-700);
+            font-weight: 700;
+        }
+
         .list-container {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--gray-300) transparent;
+            padding: 12px;
         }
 
-        .list-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .list-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .list-container::-webkit-scrollbar-thumb {
-            background: var(--gray-300);
-            border-radius: 3px;
-        }
-
-        .list-container::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-400);
-        }
-
-        /* Ganaderia card */
-        .ganaderia-card {
-            padding: 20px;
-            margin-bottom: 12px;
+        .list-item {
             background: white;
-            border-radius: var(--radius);
             border: 1px solid var(--gray-100);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ganaderia-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--primary-600);
-            transform: scaleY(0);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .ganaderia-card:hover {
-            border-color: var(--primary-200);
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
-        .ganaderia-card:hover::before {
-            transform: scaleY(1);
-        }
-
-        .ganaderia-card.active {
-            border-color: var(--primary-500);
-            background: var(--primary-50);
-            box-shadow: var(--shadow-lg), 0 0 0 4px rgba(22, 163, 74, 0.1);
-        }
-
-        .ganaderia-card.active::before {
-            transform: scaleY(1);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-        }
-
-        .card-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%);
             border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .list-item:hover {
+            border-color: var(--primary-200);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .list-item.active {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .list-item-header {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .list-item-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
 
-        .card-icon svg {
-            width: 22px;
-            height: 22px;
+        .list-item-icon svg {
+            width: 20px;
+            height: 20px;
             color: var(--primary-700);
         }
 
-        .card-content {
+        .list-item-content {
             flex: 1;
             min-width: 0;
         }
 
-        .ganaderia-name {
-            font-size: 1rem;
-            font-weight: 700;
+        .list-item-name {
+            font-weight: 600;
             color: var(--gray-900);
-            margin-bottom: 6px;
-            line-height: 1.3;
+            margin-bottom: 4px;
+            font-size: 0.9375rem;
         }
 
-        .ganaderia-location {
+        .list-item-location {
             font-size: 0.8125rem;
             color: var(--gray-500);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
-        .ganaderia-location svg {
+        .list-item-location svg {
             width: 14px;
             height: 14px;
             flex-shrink: 0;
-            color: var(--gray-400);
         }
 
-        .card-actions {
-            margin-top: 14px;
-            display: flex;
-            gap: 8px;
+        .list-item-actions {
+            margin-top: 12px;
         }
 
         .btn-maps {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 18px;
+            padding: 10px 16px;
             background: #4285f4;
-            color: white !important;
+            color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 0.875rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.35);
+            transition: background 0.2s;
         }
 
-        .btn-maps:hover {
-            background: #1a73e8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.5);
-            color: white !important;
-        }
+        .btn-maps:hover { background: #1a73e8; }
+        .btn-maps svg { width: 16px; height: 16px; }
 
-        .btn-maps:active {
-            transform: translateY(0);
-        }
-
-        .btn-maps svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--gray-500);
-        }
-
-        .empty-icon {
-            width: 64px;
-            height: 64px;
-            background: var(--gray-100);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-        }
-
-        .empty-icon svg {
-            width: 32px;
-            height: 32px;
-            color: var(--gray-400);
-        }
-
-        .empty-state h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--gray-700);
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            font-size: 0.875rem;
-        }
-
-        /* ================================================
-           MAP
-           ================================================ */
+        /* ========== MAP ========== */
         .map-container {
             flex: 1;
             position: relative;
@@ -591,46 +301,42 @@
             height: 100%;
         }
 
-        /* Map controls overlay */
-        .map-overlay {
+        .map-controls {
             position: absolute;
-            top: 24px;
-            right: 24px;
+            top: 16px;
+            right: 16px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .map-control-btn {
+        .map-btn {
             width: 44px;
             height: 44px;
             background: white;
             border: none;
             border-radius: 12px;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .map-control-btn:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .map-control-btn svg {
-            width: 20px;
-            height: 20px;
             color: var(--gray-700);
+            transition: all 0.2s;
         }
+
+        .map-btn:hover {
+            background: var(--gray-50);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .map-btn svg { width: 20px; height: 20px; }
 
         /* Leaflet customization */
         .leaflet-control-zoom {
             border: none !important;
-            box-shadow: var(--shadow-lg) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
             border-radius: 12px !important;
             overflow: hidden;
         }
@@ -642,79 +348,48 @@
             font-size: 18px !important;
             color: var(--gray-700) !important;
             border: none !important;
-            background: white !important;
         }
 
-        .leaflet-control-zoom a:hover {
-            background: var(--gray-50) !important;
-            color: var(--primary-600) !important;
-        }
-
-        .leaflet-control-zoom-in {
-            border-radius: 12px 12px 0 0 !important;
-        }
-
-        .leaflet-control-zoom-out {
-            border-radius: 0 0 12px 12px !important;
-        }
-
-        /* Custom popup */
         .leaflet-popup-content-wrapper {
-            border-radius: var(--radius) !important;
+            border-radius: 16px !important;
             padding: 0 !important;
-            box-shadow: var(--shadow-2xl) !important;
-            border: 1px solid var(--gray-100);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
         }
 
-        .leaflet-popup-content {
-            margin: 0 !important;
-            min-width: 280px !important;
-        }
+        .leaflet-popup-content { margin: 0 !important; }
 
-        .leaflet-popup-tip {
-            box-shadow: none !important;
-        }
-
-        .popup-content {
-            padding: 24px;
+        .popup-inner {
+            padding: 20px;
+            min-width: 260px;
         }
 
         .popup-header {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             margin-bottom: 16px;
             padding-bottom: 16px;
             border-bottom: 1px solid var(--gray-100);
         }
 
         .popup-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
-            border-radius: 14px;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-        }
-
-        .popup-icon svg {
-            width: 24px;
-            height: 24px;
             color: white;
         }
 
-        .popup-title {
-            flex: 1;
-        }
+        .popup-icon svg { width: 22px; height: 22px; }
 
         .popup-title h3 {
-            font-size: 1.125rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--gray-900);
-            margin-bottom: 4px;
-            line-height: 1.3;
+            margin-bottom: 2px;
         }
 
         .popup-title p {
@@ -722,43 +397,14 @@
             color: var(--gray-500);
         }
 
-        .popup-coords {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
-            padding: 14px;
-            background: var(--gray-50);
-            border-radius: 10px;
-        }
-
-        .coord-item {
-            flex: 1;
-        }
-
-        .coord-label {
-            font-size: 0.6875rem;
-            font-weight: 600;
-            color: var(--gray-400);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 4px;
-        }
-
-        .coord-value {
-            font-size: 0.9375rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-        }
-
         .popup-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%);
+            padding: 14px;
+            background: #4285f4;
             color: white;
             border: none;
             border-radius: 12px;
@@ -766,647 +412,511 @@
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
         }
 
-        .popup-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
-            color: white;
-        }
+        .popup-btn:hover { background: #1a73e8; }
+        .popup-btn svg { width: 18px; height: 18px; }
 
-        .popup-btn svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Custom marker - Pin style */
-        .custom-marker {
+        /* Custom marker */
+        .marker-pin {
+            width: 32px;
+            height: 42px;
             position: relative;
-            width: 30px;
-            height: 40px;
         }
 
-        .custom-marker::before {
+        .marker-pin::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            width: 32px;
+            height: 32px;
+            background: var(--primary-600);
             border: 3px solid white;
             border-radius: 50% 50% 50% 0;
-            transform: translateX(-50%) rotate(-45deg);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            transform: rotate(-45deg);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            left: 0;
+            top: 0;
         }
 
-        .custom-marker::after {
+        .marker-pin::after {
             content: '';
             position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background: white;
             border-radius: 50%;
+            left: 10px;
+            top: 7px;
         }
 
-        .custom-marker:hover::before {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        .marker-pin.active::before {
+            background: #f59e0b;
         }
 
-        .custom-marker.active::before {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
-        }
-
-        .custom-marker.active::after {
-            background: white;
-        }
-
-        /* ================================================
-           ANIMATIONS
-           ================================================ */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .ganaderia-card {
-            animation: fadeIn 0.4s ease forwards;
-            opacity: 0;
-        }
-
-        /* ================================================
-           RESPONSIVE
-           ================================================ */
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 360px;
-            }
+        /* ========== MOBILE LAYOUT ========== */
+        .mobile-nav {
+            display: none;
         }
 
         @media (max-width: 768px) {
-            .app-container {
+            .app {
                 flex-direction: column;
             }
 
             .sidebar {
+                display: none;
                 width: 100%;
-                height: 55vh;
-                order: 2;
-                border-right: none;
-                border-top: 1px solid var(--gray-200);
+                min-width: 100%;
+                height: calc(100% - 60px);
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 200;
             }
 
-            .map-container {
-                height: 45vh;
-                order: 1;
+            .sidebar.show {
+                display: flex;
             }
 
-            .header {
+            .sidebar-header {
                 padding: 16px 20px;
             }
 
-            .header h1 {
+            .sidebar-header h1 {
                 font-size: 1.25rem;
-                margin-bottom: 4px;
             }
 
-            .header p {
-                font-size: 0.8125rem;
-            }
-
-            .logo-badge {
-                padding: 6px 12px;
-                margin-bottom: 12px;
-            }
-
-            .search-container {
+            .search-section {
                 padding: 12px 16px;
             }
 
-            .search-input {
-                padding: 12px 40px 12px 44px;
+            .search-box input {
+                padding: 12px 40px 12px 40px;
                 font-size: 0.9375rem;
             }
 
-            .filters-container {
-                padding: 12px 16px;
+            .filters {
+                padding: 10px 16px;
+                gap: 6px;
             }
 
-            .filters-label {
-                margin-bottom: 8px;
-            }
-
-            .filter-chip {
+            .filter-btn {
                 padding: 6px 12px;
                 font-size: 0.75rem;
             }
 
-            .filter-chip .count {
-                padding: 2px 5px;
-                font-size: 0.625rem;
-            }
-
-            .results-info {
+            .results-bar {
                 padding: 10px 16px;
-                flex-direction: row;
-                justify-content: space-between;
-            }
-
-            .results-count {
                 font-size: 0.75rem;
-            }
-
-            .view-toggle {
-                display: none;
             }
 
             .list-container {
                 padding: 10px;
             }
 
-            .ganaderia-card {
+            .list-item {
                 padding: 14px;
                 margin-bottom: 8px;
             }
 
-            .card-icon {
-                width: 38px;
-                height: 38px;
-                border-radius: 10px;
+            .list-item-icon {
+                width: 36px;
+                height: 36px;
             }
 
-            .card-icon svg {
+            .list-item-icon svg {
                 width: 18px;
                 height: 18px;
             }
 
-            .ganaderia-name {
-                font-size: 0.9375rem;
+            .list-item-name {
+                font-size: 0.875rem;
             }
 
-            .ganaderia-location {
+            .list-item-location {
                 font-size: 0.75rem;
             }
 
-            .card-actions {
-                margin-top: 12px;
-            }
-
             .btn-maps {
-                padding: 10px 14px;
-                font-size: 0.8125rem;
                 width: 100%;
                 justify-content: center;
+                padding: 12px;
             }
 
-            .map-overlay {
+            .map-container {
+                height: calc(100% - 60px);
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+
+            .map-container.hide {
+                display: none;
+            }
+
+            .map-controls {
                 top: 12px;
                 right: 12px;
             }
 
-            .map-control-btn {
-                width: 38px;
-                height: 38px;
-                border-radius: 10px;
+            .map-btn {
+                width: 40px;
+                height: 40px;
             }
 
-            .map-control-btn svg {
-                width: 18px;
-                height: 18px;
+            /* Mobile bottom navigation */
+            .mobile-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                padding-bottom: var(--safe-bottom);
+                background: white;
+                border-top: 1px solid var(--gray-200);
+                z-index: 300;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
             }
 
-            /* Leaflet popup mobile */
-            .leaflet-popup-content {
-                min-width: 240px !important;
+            .mobile-nav-btn {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                border: none;
+                background: none;
+                color: var(--gray-400);
+                font-size: 0.6875rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: color 0.2s;
             }
 
-            .popup-content {
+            .mobile-nav-btn.active {
+                color: var(--primary-600);
+            }
+
+            .mobile-nav-btn svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            /* Popup mobile */
+            .popup-inner {
                 padding: 16px;
+                min-width: 220px;
+            }
+
+            .popup-header {
+                margin-bottom: 12px;
+                padding-bottom: 12px;
             }
 
             .popup-icon {
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
-            }
-
-            .popup-icon svg {
-                width: 20px;
-                height: 20px;
+                width: 38px;
+                height: 38px;
             }
 
             .popup-title h3 {
-                font-size: 1rem;
-            }
-
-            .popup-coords {
-                padding: 10px;
-                gap: 12px;
+                font-size: 0.9375rem;
             }
 
             .popup-btn {
-                padding: 12px 16px;
-                font-size: 0.875rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .sidebar {
-                height: 60vh;
-            }
-
-            .map-container {
-                height: 40vh;
-            }
-
-            .header {
-                padding: 14px 16px;
-            }
-
-            .header h1 {
-                font-size: 1.125rem;
-            }
-
-            .logo-badge {
-                display: none;
-            }
-
-            .filters-grid {
-                gap: 6px;
-            }
-
-            .filter-chip {
-                padding: 5px 10px;
-            }
-
-            .ganaderia-card {
                 padding: 12px;
-            }
-
-            .card-header {
-                gap: 10px;
-            }
-
-            .card-icon {
-                width: 34px;
-                height: 34px;
-            }
-
-            .card-icon svg {
-                width: 16px;
-                height: 16px;
-            }
-
-            .ganaderia-name {
                 font-size: 0.875rem;
-            }
-
-            .btn-maps {
-                padding: 10px 12px;
-                font-size: 0.75rem;
             }
         }
 
-        /* Touch improvements */
-        @media (hover: none) {
-            .ganaderia-card:hover {
-                transform: none;
-                box-shadow: none;
-            }
-
-            .ganaderia-card:active {
-                background: var(--primary-50);
-            }
-
-            .btn-maps:hover {
-                transform: none;
-            }
-
-            .btn-maps:active {
-                background: #1557b0;
+        /* Prevent iOS bounce */
+        @supports (-webkit-touch-callout: none) {
+            .list-container {
+                -webkit-overflow-scrolling: touch;
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <header class="header">
-                <div class="header-content">
-                    <div class="logo-badge">
-                        <div class="logo-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                            </svg>
-                        </div>
-                        <span class="logo-text">Proyma</span>
-                    </div>
-                    <h1>Mapa de Ganaderias</h1>
-                    <p>Localiza y gestiona todas las explotaciones</p>
-                </div>
-            </header>
+    <div class="app">
+        <!-- Sidebar (Lista) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>Ganaderias Proyma</h1>
+                <p>Mapa interactivo de localizaciones</p>
+            </div>
 
-            <div class="search-container">
-                <div class="search-wrapper">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar ganaderia por nombre...">
-                    <span class="search-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </span>
-                    <button class="search-clear" id="searchClear" title="Limpiar busqueda">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
+            <div class="search-section">
+                <div class="search-box">
+                    <svg class="icon-search" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Buscar ganaderia...">
+                    <button class="btn-clear" id="btnClear">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
             </div>
 
-            <div class="filters-container">
-                <div class="filters-label">Filtrar por provincia</div>
-                <div class="filters-grid" id="filtersGrid">
-                    <!-- Se generan dinámicamente -->
-                </div>
-            </div>
+            <div class="filters" id="filters"></div>
 
-            <div class="results-info">
-                <span class="results-count" id="resultsCount">Cargando...</span>
-                <div class="view-toggle">
-                    <button class="view-btn active" data-view="all">Todas</button>
-                    <button class="view-btn" data-view="visible">Visibles</button>
-                </div>
+            <div class="results-bar">
+                <span id="resultsCount">Cargando...</span>
             </div>
 
             <div class="list-container" id="listContainer"></div>
         </aside>
 
-        <main class="map-container">
+        <!-- Map -->
+        <main class="map-container" id="mapContainer">
             <div id="map"></div>
-            <div class="map-overlay">
-                <button class="map-control-btn" id="centerMap" title="Centrar mapa">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <circle cx="12" cy="12" r="3"></circle>
+            <div class="map-controls">
+                <button class="map-btn" id="btnCenter" title="Centrar mapa">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
                     </svg>
                 </button>
-                <button class="map-control-btn" id="fitAll" title="Ver todas">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <polyline points="9 21 3 21 3 15"></polyline>
-                        <line x1="21" y1="3" x2="14" y2="10"></line>
-                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                <button class="map-btn" id="btnFit" title="Ver todas">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
                     </svg>
                 </button>
             </div>
         </main>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav">
+            <button class="mobile-nav-btn active" id="navMap" data-view="map">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>Mapa</span>
+            </button>
+            <button class="mobile-nav-btn" id="navList" data-view="list">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                </svg>
+                <span>Lista</span>
+            </button>
+        </nav>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ================================================
-        // DATA
-        // ================================================
+        // ========== DATA ==========
         const ganaderias = [
-            { nombre: "Queseria El Fraile", lat: 39.508833, lng: -2.999611 },
-            { nombre: "Soledad Magan Carrasco", lat: 40.157528, lng: -2.037917 },
-            { nombre: "Julian Mateos Valverde", lat: 39.139861, lng: -3.286000 },
-            { nombre: "Francisco Alhambra", lat: 38.880472, lng: -3.263444 },
-            { nombre: "Angel Gutierrez", lat: 39.085444, lng: -3.068056 },
-            { nombre: "Jose Antonio Valverde", lat: 39.126250, lng: -3.097444 },
-            { nombre: "Clagor", lat: 39.218639, lng: -2.639306 },
-            { nombre: "Finca La Venta (Paraje de San Huberto)", lat: 39.1667, lng: -3.5000, direccion: "Entrada camino CM-4112, 7" },
-            { nombre: "Castillo Villora", lat: 39.093028, lng: -2.476556 },
-            { nombre: "Hermanos Lozano", lat: 39.2000, lng: -3.4500, direccion: "Diseminado Diseminados, 1" },
-            { nombre: "Edificio Multiusos", lat: 39.2500, lng: -3.2000 },
-            { nombre: "El Charcon", lat: 39.693194, lng: -3.593056 },
-            { nombre: "Poli Leganiel", lat: 40.0333, lng: -2.9167, direccion: "Carretera de Barajas, 10, Leganiel" },
-            { nombre: "Fernando Benito (El Robledillo)", lat: 39.5167, lng: -4.3333, direccion: "San Pablo de los Montes" },
-            { nombre: "Hermanos Martinez", lat: 39.353361, lng: -2.975833 },
-            { nombre: "Enrique Navajas", lat: 39.3000, lng: -3.1000, direccion: "Lugar Diseminado, 18A" },
-            { nombre: "Gallego Sanz", lat: 39.665056, lng: -3.015361 },
-            { nombre: "Antonio Fresneda", lat: 38.544250, lng: -3.006056 },
-            { nombre: "ES Porras", lat: 39.719778, lng: -2.837500 },
-            { nombre: "Javier Fernandez Rojo", lat: 40.199861, lng: -2.775917 },
-            { nombre: "Maria Benita (Explotacion)", lat: 39.6833, lng: -3.1000, direccion: "C. Romeral, 2" },
-            { nombre: "Lorenzo Sanchez", lat: 38.818778, lng: -2.108806 },
-            { nombre: "Granja San Joaquin", lat: 39.3500, lng: -3.0000, direccion: "Granja San Joaquin" },
-            { nombre: "Luis Santos", lat: 39.240417, lng: -3.863889 },
-            { nombre: "Oscar Sanchez", lat: 39.247639, lng: -3.859028 },
-            { nombre: "Castuera 2", lat: 38.712333, lng: -5.601306 },
-            { nombre: "Castuera 1", lat: 38.753389, lng: -5.542444 },
-            { nombre: "Jose Espadas", lat: 39.921306, lng: -3.024528 },
-            { nombre: "Lazaro", lat: 39.991056, lng: -3.183278 },
-            { nombre: "Olmo Ganaderos", lat: 39.250167, lng: -3.914667 },
-            { nombre: "Llabrimen", lat: 39.0731, lng: -3.6136, direccion: "Av La Innovacion, 13, Poligono Sur, 13250 Daimiel" },
-            { nombre: "Jose Enrique Molina", lat: 39.736389, lng: -2.934944 },
-            { nombre: "Isidro Fernandez", lat: 39.7167, lng: -2.6667, direccion: "16431 Almonacid del Marquesado, Cuenca" },
-            { nombre: "Angel De La Fuente", lat: 40.192917, lng: -2.778889 },
-            { nombre: "Daniel Talavera (Inaga)", lat: 39.956056, lng: -4.874389 },
-            { nombre: "Santiago de la Osada", lat: 39.986500, lng: -3.178000 },
-            { nombre: "Alejandro Bonilla", lat: 40.168611, lng: -2.680472 },
-            { nombre: "Hermanos Rodriguez Capitan", lat: 39.768861, lng: -3.195500 },
-            { nombre: "Jose Antonio Carretero", lat: 39.105806, lng: -3.180250 },
-            { nombre: "Casa del Conde", lat: 39.017722, lng: -3.432333 },
-            { nombre: "S.A.T El Alamillo", lat: 38.9833, lng: -3.7167, direccion: "C. Tonel, no 1, 13300 Valdepenas" },
-            { nombre: "Rusticas Arevalo", lat: 38.7167, lng: -3.0000, direccion: "13320 Villanueva de los Infantes" },
-            { nombre: "Vicente Martinez Torrijos", lat: 39.982778, lng: -3.196722 },
-            { nombre: "Ciudad Caballero", lat: 38.7833, lng: -3.8333, direccion: "CM-413, PK 28, 5, 13380 Aldea del Rey" },
-            { nombre: "Ismael Jimenez", lat: 39.161139, lng: -4.136389 },
-            { nombre: "Benito Pozohondo", lat: 38.732111, lng: -1.907667 },
-            { nombre: "Felipe Garcia Esteban", lat: 39.318944, lng: -4.064500 },
-            { nombre: "Jose Fernando Santos", lat: 39.252667, lng: -3.877000 },
-            { nombre: "Santiago Peral", lat: 39.245611, lng: -3.873667 },
-            { nombre: "Jorge (Camarena)", lat: 40.0333, lng: -4.1667, direccion: "Unnamed Road, 45180, Toledo" },
-            { nombre: "Hermanos Jimenez (Santa Cruz de la Zarza)", lat: 39.957639, lng: -3.174306 },
-            { nombre: "Hermanos Perez Juana", lat: 39.7500, lng: -3.1500, direccion: "C. Azucena, 4, 45880 Corral de Almaguer" },
-            { nombre: "VALLEHERMOSO (Llanos del Caudillo)", lat: 39.105333, lng: -3.330917 },
-            { nombre: "Juan Carlos (Villarejo de Fuentes)", lat: 39.780833, lng: -2.698778 },
-            { nombre: "Hermanos Osorio", lat: 39.735611, lng: -2.919389 },
             { nombre: "Agropecuarias Padilla", lat: 39.060806, lng: -2.266639 },
-            { nombre: "Pedro Antonio Garcia Galan", lat: 39.233000, lng: -3.791528 },
-            { nombre: "Laura y Carlos San Clemente", lat: 39.380278, lng: -2.441139 },
-            { nombre: "Ramon e Hijos", lat: 39.297639, lng: -3.138139 },
-            { nombre: "Ignacio Olivares Campo", lat: 39.6167, lng: -2.3833, direccion: "C. Camarillas, 55, 16621 Santa Maria del Campo Rus" },
-            { nombre: "Nieto e Hijos", lat: 38.977694, lng: -3.393028 },
-            { nombre: "Manuel Camacho", lat: 39.2000, lng: -3.5000, direccion: "C. Cervantes, 182" },
-            { nombre: "Noelia Merino", lat: 39.264611, lng: -3.931750 },
-            { nombre: "Emiliano Serrano", lat: 39.2167, lng: -3.7000, direccion: "C. Pio XII, 48, 13680 Fuente el Fresno" },
-            { nombre: "Felipe Sanchez Crespo", lat: 39.217667, lng: -3.632778 },
-            { nombre: "La Casa del Abogado", lat: 39.523306, lng: -3.760417 },
+            { nombre: "Agromembrilla", lat: 38.974500, lng: -3.332667 },
+            { nombre: "Agrovilla", lat: 39.613444, lng: -3.196528 },
+            { nombre: "Agustin Moral Mena", lat: 39.6500, lng: -2.5833, direccion: "16422 Tresjuncos, Cuenca" },
+            { nombre: "Agustin Moreno", lat: 39.224722, lng: -3.763167 },
+            { nombre: "Albavi", lat: 38.7500, lng: -2.1667, direccion: "C. Belen, 6, 02161 Tiriez, Albacete" },
+            { nombre: "Aldea del Rey, Jorge y Prado", lat: 38.620556, lng: -3.689472 },
+            { nombre: "Alejandro Bonilla", lat: 40.168611, lng: -2.680472 },
+            { nombre: "Ampaber Finca La Rana", lat: 38.907944, lng: -4.182861 },
+            { nombre: "Angel De La Fuente", lat: 40.192917, lng: -2.778889 },
+            { nombre: "Angel Gutierrez", lat: 39.085444, lng: -3.068056 },
+            { nombre: "Antonio Fresneda", lat: 38.544250, lng: -3.006056 },
+            { nombre: "Antonio Rabadan", lat: 39.4167, lng: -3.5500, direccion: "C. Manuel Rodriguez, 67, 45480 Urda" },
+            { nombre: "Bauti Mota del Cuervo", lat: 39.5000, lng: -2.8667, direccion: "C. Felicidad, 3, 16630 Mota del Cuervo" },
+            { nombre: "Bauti Villanueva de Alcardete", lat: 39.683778, lng: -3.035389 },
+            { nombre: "Belmonte, Damian", lat: 39.550972, lng: -2.719278 },
+            { nombre: "Benito Pozohondo", lat: 38.732111, lng: -1.907667 },
+            { nombre: "Camino Bueno Manuel Florencio", lat: 39.180917, lng: -3.992444 },
+            { nombre: "Camino Finca Navalcaballo (Campo Ovino) GB", lat: 38.840972, lng: -2.813250 },
             { nombre: "Campo Ovino (Guija) Villarrobledo", lat: 39.257556, lng: -2.452861 },
-            { nombre: "Manuel Urena", lat: 38.870306, lng: -3.686222 },
+            { nombre: "Carprariza", lat: 39.393333, lng: -3.740556 },
+            { nombre: "Casa del Conde", lat: 39.017722, lng: -3.432333 },
+            { nombre: "Casa Los Majines (Consuegra)", lat: 39.463000, lng: -3.604611 },
+            { nombre: "Castillo Villora", lat: 39.093028, lng: -2.476556 },
+            { nombre: "Castuera 1", lat: 38.753389, lng: -5.542444 },
+            { nombre: "Castuera 2", lat: 38.712333, lng: -5.601306 },
+            { nombre: "Cimasa", lat: 39.193361, lng: -2.142472 },
+            { nombre: "Ciudad Caballero", lat: 38.7833, lng: -3.8333, direccion: "CM-413, PK 28, 5, 13380 Aldea del Rey" },
+            { nombre: "Clagor", lat: 39.218639, lng: -2.639306 },
+            { nombre: "Clinica Villarrubia", lat: 39.223139, lng: -3.604972, direccion: "Paseo del Cordon" },
+            { nombre: "Comercial de Ovino Manchego", lat: 39.1833, lng: -1.7667, direccion: "02240 Mahora, Albacete" },
+            { nombre: "Conrado Lopez", lat: 39.601111, lng: -2.214417 },
+            { nombre: "Consabrum", lat: 39.478167, lng: -3.754556 },
+            { nombre: "Coop. Fuente el Fresno", lat: 39.2167, lng: -3.7000, direccion: "Cam. de Cdad. Real, 21" },
+            { nombre: "Cosme Javier (Horcajo)", lat: 39.3000, lng: -4.6000, direccion: "Horcajo de los Montes" },
+            { nombre: "Daniel Talavera (Inaga)", lat: 39.956056, lng: -4.874389 },
+            { nombre: "David Alcazar (Villahermosa)", lat: 38.748500, lng: -2.820194 },
+            { nombre: "Domingo Laguna", lat: 39.605972, lng: -3.625444 },
+            { nombre: "Edificio Multiusos", lat: 39.2500, lng: -3.2000 },
+            { nombre: "El Canavate, Jesus", lat: 39.518611, lng: -2.263389 },
+            { nombre: "El Charcon", lat: 39.693194, lng: -3.593056 },
+            { nombre: "El Jaron 2", lat: 38.612167, lng: -3.127278 },
+            { nombre: "Emiliano Serrano", lat: 39.2167, lng: -3.7000, direccion: "C. Pio XII, 48, 13680 Fuente el Fresno" },
+            { nombre: "Emilio Jose Garcia-Miguel (Madridejos)", lat: 39.515639, lng: -3.534361 },
+            { nombre: "Emilio Poveda", lat: 39.180222, lng: -2.941750 },
+            { nombre: "Enrique Navajas", lat: 39.3000, lng: -3.1000, direccion: "Lugar Diseminado, 18A" },
+            { nombre: "ES Porras", lat: 39.719778, lng: -2.837500 },
+            { nombre: "Eugenio Fernandez (Retjerta)", lat: 39.456944, lng: -4.407889 },
+            { nombre: "Eugenio Poveda, Cinco Casas", lat: 39.161778, lng: -3.181861 },
+            { nombre: "Felipe Garcia Esteban", lat: 39.318944, lng: -4.064500 },
+            { nombre: "Felipe Sanchez Crespo", lat: 39.217667, lng: -3.632778 },
+            { nombre: "Fernando Benito (El Robledillo)", lat: 39.5167, lng: -4.3333, direccion: "San Pablo de los Montes" },
+            { nombre: "Fervapor", lat: 39.4167, lng: -3.5500, direccion: "C. Donantes de Sangre, 5, 45480 Urda" },
+            { nombre: "Finca La Nava", lat: 38.8833, lng: -3.7167, direccion: "13270 Almagro" },
+            { nombre: "Finca La Venta (Paraje de San Huberto)", lat: 39.1667, lng: -3.5000, direccion: "Entrada camino CM-4112, 7" },
+            { nombre: "Francisco Alhambra", lat: 38.880472, lng: -3.263444 },
+            { nombre: "Francisco Javier Gines Anguita", lat: 38.844917, lng: -4.247417 },
+            { nombre: "Francisca Atencia, Munera", lat: 38.9500, lng: -2.4833, direccion: "02612 Munera, Albacete" },
+            { nombre: "Frisones Verbo", lat: 39.4500, lng: -3.6000, direccion: "Camino de los Cerros, 45700 Consuegra" },
+            { nombre: "Gallego Sanz", lat: 39.665056, lng: -3.015361 },
+            { nombre: "Gantomar", lat: 39.493278, lng: -3.708028 },
+            { nombre: "Garin Cobian", lat: 38.975500, lng: -4.022778 },
+            { nombre: "Gomez Moreno", lat: 39.157083, lng: -3.361278 },
+            { nombre: "Granja San Joaquin", lat: 39.3500, lng: -3.0000, direccion: "Granja San Joaquin" },
             { nombre: "Herederos de Jeronimo Alcaide", lat: 38.732722, lng: -3.839167 },
             { nombre: "Herederos de Vicente Barrera", lat: 39.087833, lng: -2.409722 },
-            { nombre: "Romegil", lat: 39.1667, lng: -3.8500, direccion: "13429 Malagon" },
-            { nombre: "Saanencapri", lat: 39.306528, lng: -3.444972 },
-            { nombre: "Jose Ramon Rodrigo", lat: 39.207028, lng: -3.396806 },
-            { nombre: "Fervapor", lat: 39.4167, lng: -3.5500, direccion: "C. Donantes de Sangre, 5, 45480 Urda" },
-            { nombre: "La Majada Manchega", lat: 39.714750, lng: -2.826889 },
-            { nombre: "Comercial de Ovino Manchego", lat: 39.1833, lng: -1.7667, direccion: "02240 Mahora, Albacete" },
-            { nombre: "Torrecilla y Albala", lat: 38.9833, lng: -3.9167, direccion: "13005 Ciudad Real" },
-            { nombre: "Garin Cobian", lat: 38.975500, lng: -4.022778 },
-            { nombre: "Jose Carlos Frances", lat: 39.251417, lng: -3.905528 },
-            { nombre: "Cimasa", lat: 39.193361, lng: -2.142472 },
-            { nombre: "Albavi", lat: 38.7500, lng: -2.1667, direccion: "C. Belen, 6, 02161 Tiriez, Albacete" },
-            { nombre: "David Alcazar (Villahermosa)", lat: 38.748500, lng: -2.820194 },
-            { nombre: "Jose Luis Rodriguez Rabadan", lat: 38.932028, lng: -3.194972 },
-            { nombre: "Agromembrilla", lat: 38.974500, lng: -3.332667 },
-            { nombre: "Lagasca 91", lat: 39.056944, lng: -3.022444 },
-            { nombre: "Oveman Villaescusa de Haro", lat: 39.5833, lng: -2.4833, direccion: "16647 Villaescusa de Haro, Cuenca" },
-            { nombre: "Jose Ramon Lopez (Calera y Chozas)", lat: 39.879250, lng: -4.971361 },
-            { nombre: "Conrado Lopez", lat: 39.601111, lng: -2.214417 },
-            { nombre: "Ivan Melero", lat: 39.589306, lng: -2.691806 },
-            { nombre: "Reyes y Luis Moral", lat: 39.6500, lng: -2.5833, direccion: "C. Mayor, 45-39, 16422 Tresjuncos" },
-            { nombre: "Hijos de Lazaro Pavon", lat: 39.463667, lng: -4.407083 },
-            { nombre: "Gantomar", lat: 39.493278, lng: -3.708028 },
-            { nombre: "Luis Checa", lat: 39.622250, lng: -3.212778 },
-            { nombre: "Vicente Jimenez", lat: 38.942139, lng: -3.366250 },
-            { nombre: "Maria Belen Sanchez", lat: 39.704000, lng: -4.188083 },
-            { nombre: "Queseria Hontanar", lat: 39.6000, lng: -4.4500, direccion: "calle Robledo s/no, 45159 Hontanar, Toledo" },
-            { nombre: "Joaquin Delgado (Belmonte)", lat: 39.568139, lng: -2.713806 },
-            { nombre: "Eugenio Fernandez (Retjerta)", lat: 39.456944, lng: -4.407889 },
-            { nombre: "Cosme Javier (Horcajo)", lat: 39.3000, lng: -4.6000, direccion: "Cam. de la Rana de la Zarceruela, 13110 Horcajo de los Montes" },
-            { nombre: "Juan Carlos Hontanilla (Horcajo)", lat: 39.282528, lng: -4.645194 },
-            { nombre: "La Marantona 2", lat: 38.876500, lng: -3.175250 },
-            { nombre: "Consabrum", lat: 39.478167, lng: -3.754556 },
-            { nombre: "Antonio Rabadan", lat: 39.4167, lng: -3.5500, direccion: "C. Manuel Rodriguez, 67, 45480 Urda" },
-            { nombre: "Los Patino Santa Maria del Campo", lat: 39.553056, lng: -2.417667 },
-            { nombre: "Bauti Mota del Cuervo", lat: 39.5000, lng: -2.8667, direccion: "C. Felicidad, 3, 16630 Mota del Cuervo" },
-            { nombre: "Agustin Moral Mena", lat: 39.6500, lng: -2.5833, direccion: "16422 Tresjuncos, Cuenca" },
-            { nombre: "Bauti Villanueva de Alcardete", lat: 39.683778, lng: -3.035389 },
-            { nombre: "Agrovilla", lat: 39.613444, lng: -3.196528 },
-            { nombre: "Maria Benita (Villa de Don Fadrique)", lat: 39.6167, lng: -3.2167, direccion: "C. de la Zarzas, 2-8, 45850 La Villa de Don Fadrique" },
+            { nombre: "Hermanos Jimenez (Santa Cruz de la Zarza)", lat: 39.957639, lng: -3.174306 },
+            { nombre: "Hermanos Lozano", lat: 39.2000, lng: -3.4500, direccion: "Diseminado Diseminados, 1" },
+            { nombre: "Hermanos Martinez", lat: 39.353361, lng: -2.975833 },
             { nombre: "Hermanos Monsalve", lat: 38.843694, lng: -4.096806 },
-            { nombre: "Juan Pedro Infantes", lat: 38.889556, lng: -4.143250 },
-            { nombre: "Francisco Javier Gines Anguita", lat: 38.844917, lng: -4.247417 },
-            { nombre: "La Gineta GB", lat: 39.112750, lng: -2.059500 },
-            { nombre: "Piensos Hortelano 2", lat: 39.2000, lng: -2.1500, direccion: "Poligono nuevo C. A,pg Ind el Salvador II, 46, 02630 La Roda" },
-            { nombre: "Pedro Jose Nova Patino", lat: 38.654583, lng: -3.069722 },
-            { nombre: "El Jaron 2", lat: 38.612167, lng: -3.127278 },
-            { nombre: "Emilio Poveda", lat: 39.180222, lng: -2.941750 },
-            { nombre: "Supermercado Hermanas Alfredo Oliva", lat: 39.460917, lng: -3.613806 },
-            { nombre: "Emilio Jose Garcia-Miguel (Madridejos)", lat: 39.515639, lng: -3.534361 },
-            { nombre: "Carprariza", lat: 39.393333, lng: -3.740556 },
-            { nombre: "Clinica Villarrubia", lat: 39.223139, lng: -3.604972, direccion: "Paseo del Cordon" },
-            { nombre: "Valdeverdeja", lat: 39.787750, lng: -5.246556 },
-            { nombre: "Pedro Iglesias (Corral de Almaguer)", lat: 39.766861, lng: -3.161944 },
-            { nombre: "San Clemente 2 Melgarejo", lat: 39.438861, lng: -2.461278 },
-            { nombre: "Maria Jose Egido (Santa Cruz de Mudela)", lat: 38.621306, lng: -3.485389 },
-            { nombre: "Ampaber Finca La Rana", lat: 38.907944, lng: -4.182861 },
-            { nombre: "Ovinos Lacaunes (Fuente El Fresno)", lat: 39.219528, lng: -3.788194 },
-            { nombre: "Camino Finca Navalcaballo (Campo Ovino) GB", lat: 38.840972, lng: -2.813250 },
+            { nombre: "Hermanos Osorio", lat: 39.735611, lng: -2.919389 },
             { nombre: "Hermanos Parra, Pozo La Serna", lat: 38.779556, lng: -3.229472 },
-            { nombre: "Palacio y Morcillo (La Yunquera)", lat: 38.921056, lng: -2.244472 },
+            { nombre: "Hermanos Perez Juana", lat: 39.7500, lng: -3.1500, direccion: "C. Azucena, 4, 45880 Corral de Almaguer" },
+            { nombre: "Hermanos Rodriguez Capitan", lat: 39.768861, lng: -3.195500 },
+            { nombre: "Hijos de Lazaro Pavon", lat: 39.463667, lng: -4.407083 },
+            { nombre: "Ignacio Olivares Campo", lat: 39.6167, lng: -2.3833, direccion: "C. Camarillas, 55, Santa Maria del Campo Rus" },
+            { nombre: "Isidro Fernandez", lat: 39.7167, lng: -2.6667, direccion: "16431 Almonacid del Marquesado" },
+            { nombre: "Ismael Jimenez", lat: 39.161139, lng: -4.136389 },
+            { nombre: "Ivan Melero", lat: 39.589306, lng: -2.691806 },
+            { nombre: "Javier Fernandez Rojo", lat: 40.199861, lng: -2.775917 },
             { nombre: "Jesus Gallego (Villahermosa)", lat: 38.745028, lng: -2.861194 },
-            { nombre: "Rafael Diaz (Montiel)", lat: 38.717722, lng: -2.892444 },
+            { nombre: "Joaquin Delgado (Belmonte)", lat: 39.568139, lng: -2.713806 },
+            { nombre: "Jorge (Camarena)", lat: 40.0333, lng: -4.1667, direccion: "45180, Toledo" },
+            { nombre: "Jose Antonio Carretero", lat: 39.105806, lng: -3.180250 },
+            { nombre: "Jose Antonio Valverde", lat: 39.126250, lng: -3.097444 },
+            { nombre: "Jose Carlos Frances", lat: 39.251417, lng: -3.905528 },
+            { nombre: "Jose Enrique Molina", lat: 39.736389, lng: -2.934944 },
+            { nombre: "Jose Espadas", lat: 39.921306, lng: -3.024528 },
+            { nombre: "Jose Fernando Santos", lat: 39.252667, lng: -3.877000 },
             { nombre: "Jose Lominchar (Corral de Almaguer)", lat: 39.760889, lng: -3.174972 },
-            { nombre: "Finca La Nava", lat: 38.8833, lng: -3.7167, direccion: "13270 Almagro" },
             { nombre: "Jose Luis Martin (Los Quiles)", lat: 39.253167, lng: -3.989444 },
-            { nombre: "Casa Los Majines (Consuegra)", lat: 39.463000, lng: -3.604611 },
-            { nombre: "Vicente Gutierrez (Los Yebenes)", lat: 39.570972, lng: -3.883444 },
-            { nombre: "Camino Bueno Manuel Florencio", lat: 39.180917, lng: -3.992444 },
-            { nombre: "Domingo Laguna", lat: 39.605972, lng: -3.625444 },
-            { nombre: "Frisones Verbo", lat: 39.4500, lng: -3.6000, direccion: "Camino de los Cerros s/n, 45700 Consuegra" },
-            { nombre: "Quesos Las Tinajuelas", lat: 38.759944, lng: -3.759250 },
-            { nombre: "Manuel Corral", lat: 38.771306, lng: -3.777389 },
-            { nombre: "Agustin Moreno", lat: 39.224722, lng: -3.763167 },
-            { nombre: "Pedriza de la Fuente", lat: 39.2167, lng: -3.5833, direccion: "13670 Villarrubia de los Ojos" },
-            { nombre: "Eugenio Poveda, Cinco Casas", lat: 39.161778, lng: -3.181861 },
+            { nombre: "Jose Luis Rodriguez Rabadan", lat: 38.932028, lng: -3.194972 },
+            { nombre: "Jose Ramon Lopez (Calera y Chozas)", lat: 39.879250, lng: -4.971361 },
+            { nombre: "Jose Ramon Rodrigo", lat: 39.207028, lng: -3.396806 },
+            { nombre: "Juan Carlos (Villarejo de Fuentes)", lat: 39.780833, lng: -2.698778 },
+            { nombre: "Juan Carlos Hontanilla (Horcajo)", lat: 39.282528, lng: -4.645194 },
+            { nombre: "Juan Pedro Infantes", lat: 38.889556, lng: -4.143250 },
+            { nombre: "Julian Mateos Valverde", lat: 39.139861, lng: -3.286000 },
+            { nombre: "La Casa del Abogado", lat: 39.523306, lng: -3.760417 },
+            { nombre: "La Gineta GB", lat: 39.112750, lng: -2.059500 },
+            { nombre: "La Majada Manchega", lat: 39.714750, lng: -2.826889 },
+            { nombre: "La Marantona 2", lat: 38.876500, lng: -3.175250 },
+            { nombre: "Lagasca 91", lat: 39.056944, lng: -3.022444 },
+            { nombre: "Laura y Carlos San Clemente", lat: 39.380278, lng: -2.441139 },
+            { nombre: "Lazaro", lat: 39.991056, lng: -3.183278 },
+            { nombre: "Llabrimen", lat: 39.0731, lng: -3.6136, direccion: "Av La Innovacion, 13, Daimiel" },
+            { nombre: "Lorenzo Sanchez", lat: 38.818778, lng: -2.108806 },
+            { nombre: "Los Patino Santa Maria del Campo", lat: 39.553056, lng: -2.417667 },
+            { nombre: "Luis Checa", lat: 39.622250, lng: -3.212778 },
+            { nombre: "Luis Santos", lat: 39.240417, lng: -3.863889 },
             { nombre: "Madridejos, Angel Luis Alcobendas", lat: 39.483194, lng: -3.544861 },
-            { nombre: "Tarazona de La Mancha", lat: 39.245167, lng: -1.922778 },
-            { nombre: "Aldea del Rey, Jorge y Prado", lat: 38.620556, lng: -3.689472 },
+            { nombre: "Manuel Camacho", lat: 39.2000, lng: -3.5000, direccion: "C. Cervantes, 182" },
+            { nombre: "Manuel Corral", lat: 38.771306, lng: -3.777389 },
             { nombre: "Manuel Maestre, Malagon", lat: 39.190667, lng: -3.826028 },
-            { nombre: "Coop. Fuente el Fresno", lat: 39.2167, lng: -3.7000, direccion: "Cam. de Cdad. Real, 21, 13680 Fuente el Fresno" },
-            { nombre: "Piensos Hortelano, La Roda", lat: 39.2000, lng: -2.1500, direccion: "C. Perez Galdos, 38, 02630 La Roda" },
-            { nombre: "El Canavate, Jesus", lat: 39.518611, lng: -2.263389 },
-            { nombre: "Belmonte, Damian", lat: 39.550972, lng: -2.719278 },
-            { nombre: "Rafael Minano, Santa Maria del Campo Rus", lat: 39.6167, lng: -2.3833, direccion: "C. Convento, 37, 16621 Santa Maria del Campo Rus" },
-            { nombre: "Rodrigo, Gabaldon", lat: 39.6333, lng: -2.3500, direccion: "Lugar Calvo Sotelo, 1, 16214 Gabaldon" },
-            { nombre: "Francisca Atencia, Munera", lat: 38.9500, lng: -2.4833, direccion: "02612 Munera, Albacete" },
-            { nombre: "Villar del Pozo Transpiedrabuena", lat: 38.9167, lng: -3.8500, direccion: "13431 Villar del Pozo" },
-            { nombre: "Gomez Moreno", lat: 39.157083, lng: -3.361278 }
+            { nombre: "Manuel Urena", lat: 38.870306, lng: -3.686222 },
+            { nombre: "Maria Belen Sanchez", lat: 39.704000, lng: -4.188083 },
+            { nombre: "Maria Benita (Explotacion)", lat: 39.6833, lng: -3.1000, direccion: "C. Romeral, 2" },
+            { nombre: "Maria Benita (Villa de Don Fadrique)", lat: 39.6167, lng: -3.2167, direccion: "C. de la Zarzas, 2-8" },
+            { nombre: "Maria Jose Egido (Santa Cruz de Mudela)", lat: 38.621306, lng: -3.485389 },
+            { nombre: "Nieto e Hijos", lat: 38.977694, lng: -3.393028 },
+            { nombre: "Noelia Merino", lat: 39.264611, lng: -3.931750 },
+            { nombre: "Olmo Ganaderos", lat: 39.250167, lng: -3.914667 },
+            { nombre: "Oscar Sanchez", lat: 39.247639, lng: -3.859028 },
+            { nombre: "Oveman Villaescusa de Haro", lat: 39.5833, lng: -2.4833, direccion: "16647 Villaescusa de Haro" },
+            { nombre: "Ovinos Lacaunes (Fuente El Fresno)", lat: 39.219528, lng: -3.788194 },
+            { nombre: "Palacio y Morcillo (La Yunquera)", lat: 38.921056, lng: -2.244472 },
+            { nombre: "Pedro Antonio Garcia Galan", lat: 39.233000, lng: -3.791528 },
+            { nombre: "Pedro Iglesias (Corral de Almaguer)", lat: 39.766861, lng: -3.161944 },
+            { nombre: "Pedro Jose Nova Patino", lat: 38.654583, lng: -3.069722 },
+            { nombre: "Pedriza de la Fuente", lat: 39.2167, lng: -3.5833, direccion: "13670 Villarrubia de los Ojos" },
+            { nombre: "Piensos Hortelano 2", lat: 39.2000, lng: -2.1500, direccion: "02630 La Roda" },
+            { nombre: "Piensos Hortelano, La Roda", lat: 39.2000, lng: -2.1500, direccion: "C. Perez Galdos, 38" },
+            { nombre: "Poli Leganiel", lat: 40.0333, lng: -2.9167, direccion: "Carretera de Barajas, 10" },
+            { nombre: "Queseria El Fraile", lat: 39.508833, lng: -2.999611 },
+            { nombre: "Queseria Hontanar", lat: 39.6000, lng: -4.4500, direccion: "45159 Hontanar, Toledo" },
+            { nombre: "Quesos Las Tinajuelas", lat: 38.759944, lng: -3.759250 },
+            { nombre: "Rafael Diaz (Montiel)", lat: 38.717722, lng: -2.892444 },
+            { nombre: "Rafael Minano, Santa Maria del Campo Rus", lat: 39.6167, lng: -2.3833, direccion: "C. Convento, 37" },
+            { nombre: "Ramon e Hijos", lat: 39.297639, lng: -3.138139 },
+            { nombre: "Reyes y Luis Moral", lat: 39.6500, lng: -2.5833, direccion: "C. Mayor, 45-39, Tresjuncos" },
+            { nombre: "Rodrigo, Gabaldon", lat: 39.6333, lng: -2.3500, direccion: "Lugar Calvo Sotelo, 1" },
+            { nombre: "Romegil", lat: 39.1667, lng: -3.8500, direccion: "13429 Malagon" },
+            { nombre: "Rusticas Arevalo", lat: 38.7167, lng: -3.0000, direccion: "13320 Villanueva de los Infantes" },
+            { nombre: "S.A.T El Alamillo", lat: 38.9833, lng: -3.7167, direccion: "C. Tonel, 13300 Valdepenas" },
+            { nombre: "Saanencapri", lat: 39.306528, lng: -3.444972 },
+            { nombre: "San Clemente 2 Melgarejo", lat: 39.438861, lng: -2.461278 },
+            { nombre: "Santiago de la Osada", lat: 39.986500, lng: -3.178000 },
+            { nombre: "Santiago Peral", lat: 39.245611, lng: -3.873667 },
+            { nombre: "Soledad Magan Carrasco", lat: 40.157528, lng: -2.037917 },
+            { nombre: "Supermercado Hermanas Alfredo Oliva", lat: 39.460917, lng: -3.613806 },
+            { nombre: "Tarazona de La Mancha", lat: 39.245167, lng: -1.922778 },
+            { nombre: "Torrecilla y Albala", lat: 38.9833, lng: -3.9167, direccion: "13005 Ciudad Real" },
+            { nombre: "Valdeverdeja", lat: 39.787750, lng: -5.246556 },
+            { nombre: "VALLEHERMOSO (Llanos del Caudillo)", lat: 39.105333, lng: -3.330917 },
+            { nombre: "Vicente Gutierrez (Los Yebenes)", lat: 39.570972, lng: -3.883444 },
+            { nombre: "Vicente Jimenez", lat: 38.942139, lng: -3.366250 },
+            { nombre: "Vicente Martinez Torrijos", lat: 39.982778, lng: -3.196722 },
+            { nombre: "Villar del Pozo Transpiedrabuena", lat: 38.9167, lng: -3.8500, direccion: "13431 Villar del Pozo" }
         ];
 
-        // ================================================
-        // MAP INITIALIZATION
-        // ================================================
-        const map = L.map('map', {
-            zoomControl: true
-        }).setView([39.3, -3.2], 8);
+        // Province detection
+        function getProvince(lat, lng) {
+            if (lng < -5) return 'Badajoz';
+            if (lng < -4.5) return 'Toledo';
+            if (lat > 39.5 && lng < -3.0 && lng > -4.5) return 'Toledo';
+            if (lng > -2.5 && lat > 39.4) return 'Cuenca';
+            if (lng > -2.5 && lat < 39.4) return 'Albacete';
+            if (lat > 39.5 && lng > -3.5 && lng < -2.5) return 'Cuenca';
+            return 'Ciudad Real';
+        }
 
-        // Premium map tiles (CartoDB Voyager)
+        // Add province to data
+        const data = ganaderias.map(g => ({
+            ...g,
+            provincia: getProvince(g.lat, g.lng)
+        }));
+
+        // ========== MAP SETUP ==========
+        const map = L.map('map', { zoomControl: true }).setView([39.3, -3.2], 8);
+
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
             maxZoom: 19
         }).addTo(map);
 
-        // ================================================
-        // CUSTOM ICON
-        // ================================================
-        const createCustomIcon = (isActive = false) => {
-            return L.divIcon({
-                className: `custom-marker ${isActive ? 'active' : ''}`,
-                iconSize: [30, 40],
-                iconAnchor: [15, 40],
-                popupAnchor: [0, -40]
-            });
-        };
+        // Custom icon
+        const createIcon = (active = false) => L.divIcon({
+            className: `marker-pin ${active ? 'active' : ''}`,
+            iconSize: [32, 42],
+            iconAnchor: [16, 42],
+            popupAnchor: [0, -42]
+        });
 
-        // ================================================
-        // PROVINCE DETECTION (approximate by coordinates)
-        // ================================================
-        function detectProvince(lat, lng) {
-            // Approximate boundaries for CLM provinces
-            if (lng < -4.5) return 'Toledo';
-            if (lng > -2.5 && lat > 39.4) return 'Cuenca';
-            if (lng > -2.5 && lat < 39.4) return 'Albacete';
-            if (lat > 39.6 && lng > -3.5 && lng < -2.5) return 'Cuenca';
-            if (lat > 39.5 && lng < -3.0) return 'Toledo';
-            if (lat < 39.0 && lng < -3.5) return 'Ciudad Real';
-            if (lat < 39.0 && lng > -3.5 && lng < -2.5) return 'Ciudad Real';
-            if (lng < -5) return 'Badajoz';
-            return 'Ciudad Real'; // Default
-        }
-
-        // Add province to each ganaderia and sort alphabetically
-        const ganaderiasWithProvince = ganaderias
-            .map(g => ({ ...g, provincia: detectProvince(g.lat, g.lng) }))
-            .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
-
-        // ================================================
-        // MARKERS & LIST
-        // ================================================
+        // ========== STATE ==========
         const markers = [];
-        let activeItem = null;
-        let activeMarker = null;
         let activeProvince = null;
+        let activeMarkerIndex = null;
 
-        function createPopupContent(g) {
-            const googleMapsUrl = `https://www.google.com/maps?q=${g.lat},${g.lng}`;
+        // ========== RENDER ==========
+        function createPopup(g) {
+            const url = `https://www.google.com/maps?q=${g.lat},${g.lng}`;
             return `
-                <div class="popup-content">
+                <div class="popup-inner">
                     <div class="popup-header">
                         <div class="popup-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
                             </svg>
                         </div>
                         <div class="popup-title">
@@ -1414,20 +924,10 @@
                             <p>${g.provincia}${g.direccion ? ' - ' + g.direccion : ''}</p>
                         </div>
                     </div>
-                    <div class="popup-coords">
-                        <div class="coord-item">
-                            <div class="coord-label">Latitud</div>
-                            <div class="coord-value">${g.lat.toFixed(6)}</div>
-                        </div>
-                        <div class="coord-item">
-                            <div class="coord-label">Longitud</div>
-                            <div class="coord-value">${g.lng.toFixed(6)}</div>
-                        </div>
-                    </div>
-                    <a href="${googleMapsUrl}" target="_blank" class="popup-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
+                    <a href="${url}" target="_blank" class="popup-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
                         </svg>
                         Abrir en Google Maps
                     </a>
@@ -1436,240 +936,218 @@
         }
 
         function createListItem(g, index) {
-            const googleMapsUrl = `https://www.google.com/maps?q=${g.lat},${g.lng}`;
-            const item = document.createElement('div');
-            item.className = 'ganaderia-card';
-            item.style.animationDelay = `${index * 30}ms`;
-            item.innerHTML = `
-                <div class="card-header">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            const url = `https://www.google.com/maps?q=${g.lat},${g.lng}`;
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <div class="list-item-header">
+                    <div class="list-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
                         </svg>
                     </div>
-                    <div class="card-content">
-                        <div class="ganaderia-name">${g.nombre}</div>
-                        <div class="ganaderia-location">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
+                    <div class="list-item-content">
+                        <div class="list-item-name">${g.nombre}</div>
+                        <div class="list-item-location">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
                             </svg>
-                            ${g.direccion || `${g.lat.toFixed(4)}, ${g.lng.toFixed(4)}`}
+                            ${g.provincia}${g.direccion ? ' - ' + g.direccion : ''}
                         </div>
                     </div>
                 </div>
-                <div class="card-actions">
-                    <a href="${googleMapsUrl}" target="_blank" class="btn-maps" onclick="event.stopPropagation()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
+                <div class="list-item-actions">
+                    <a href="${url}" target="_blank" class="btn-maps" onclick="event.stopPropagation()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
                         </svg>
                         Google Maps
                     </a>
                 </div>
             `;
-            item.dataset.index = index;
-            return item;
-        }
 
-        function initializeFilters() {
-            const filtersGrid = document.getElementById('filtersGrid');
+            div.addEventListener('click', () => {
+                setActive(index);
+                map.setView([g.lat, g.lng], 14, { animate: true });
+                markers[index].marker.openPopup();
 
-            // Count by province
-            const provinceCounts = {};
-            ganaderiasWithProvince.forEach(g => {
-                provinceCounts[g.provincia] = (provinceCounts[g.provincia] || 0) + 1;
-            });
-
-            // Add "Todas" filter first
-            const allChip = document.createElement('button');
-            allChip.className = 'filter-chip active';
-            allChip.dataset.province = 'all';
-            allChip.innerHTML = `Todas <span class="count">${ganaderiasWithProvince.length}</span>`;
-            allChip.addEventListener('click', () => handleProvinceFilter('all'));
-            filtersGrid.appendChild(allChip);
-
-            // Add province filters
-            Object.entries(provinceCounts)
-                .sort((a, b) => b[1] - a[1])
-                .forEach(([province, count]) => {
-                    const chip = document.createElement('button');
-                    chip.className = 'filter-chip';
-                    chip.dataset.province = province;
-                    chip.innerHTML = `${province} <span class="count">${count}</span>`;
-                    chip.addEventListener('click', () => handleProvinceFilter(province));
-                    filtersGrid.appendChild(chip);
-                });
-        }
-
-        function handleProvinceFilter(province) {
-            activeProvince = province === 'all' ? null : province;
-
-            // Update active chip
-            document.querySelectorAll('.filter-chip').forEach(chip => {
-                chip.classList.toggle('active', chip.dataset.province === province);
-            });
-
-            // Apply combined filters
-            applyFilters();
-        }
-
-        function initializeMap() {
-            const listContainer = document.getElementById('listContainer');
-
-            ganaderiasWithProvince.forEach((g, index) => {
-                // Create marker
-                const marker = L.marker([g.lat, g.lng], { icon: createCustomIcon() }).addTo(map);
-                marker.bindPopup(createPopupContent(g), { maxWidth: 320 });
-
-                marker.on('click', () => {
-                    setActiveMarker(marker, index);
-                });
-
-                markers.push({ marker, data: g, visible: true });
-
-                // Create list item
-                const item = createListItem(g, index);
-                item.addEventListener('click', () => {
-                    map.setView([g.lat, g.lng], 14, { animate: true });
-                    marker.openPopup();
-                    setActiveMarker(marker, index);
-                    setActiveItem(item);
-                });
-
-                listContainer.appendChild(item);
-            });
-
-            updateResultsCount(ganaderiasWithProvince.length);
-            initializeFilters();
-        }
-
-        function setActiveMarker(marker, index) {
-            // Reset previous active marker
-            if (activeMarker) {
-                activeMarker.setIcon(createCustomIcon(false));
-            }
-            // Set new active marker
-            marker.setIcon(createCustomIcon(true));
-            activeMarker = marker;
-
-            // Update list item
-            const items = document.querySelectorAll('.ganaderia-card');
-            items.forEach((item, i) => {
-                if (i === index) {
-                    setActiveItem(item);
+                // On mobile, switch to map view
+                if (window.innerWidth <= 768) {
+                    showView('map');
                 }
             });
+
+            return div;
         }
 
-        function setActiveItem(item) {
-            if (activeItem) {
-                activeItem.classList.remove('active');
+        function setActive(index) {
+            // Reset previous
+            if (activeMarkerIndex !== null) {
+                markers[activeMarkerIndex].marker.setIcon(createIcon(false));
+                const prevItem = document.querySelector('.list-item.active');
+                if (prevItem) prevItem.classList.remove('active');
             }
-            item.classList.add('active');
-            activeItem = item;
 
-            // Scroll into view
-            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Set new
+            activeMarkerIndex = index;
+            markers[index].marker.setIcon(createIcon(true));
+            const items = document.querySelectorAll('.list-item');
+            if (items[index]) {
+                items[index].classList.add('active');
+                items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
-        function updateResultsCount(visible) {
-            document.getElementById('resultsCount').innerHTML =
-                `Mostrando <strong>${visible}</strong> de <strong>${ganaderiasWithProvince.length}</strong> ganaderias`;
+        function initFilters() {
+            const container = document.getElementById('filters');
+            const counts = {};
+            data.forEach(g => counts[g.provincia] = (counts[g.provincia] || 0) + 1);
+
+            // All button
+            const allBtn = document.createElement('button');
+            allBtn.className = 'filter-btn active';
+            allBtn.dataset.province = 'all';
+            allBtn.innerHTML = `Todas <span class="count">${data.length}</span>`;
+            allBtn.onclick = () => filterByProvince('all');
+            container.appendChild(allBtn);
+
+            // Province buttons
+            Object.entries(counts)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([prov, count]) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.dataset.province = prov;
+                    btn.innerHTML = `${prov} <span class="count">${count}</span>`;
+                    btn.onclick = () => filterByProvince(prov);
+                    container.appendChild(btn);
+                });
         }
 
-        // ================================================
-        // SEARCH & FILTERS
-        // ================================================
-        function normalizeString(str) {
-            return str.toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "");
+        function filterByProvince(province) {
+            activeProvince = province === 'all' ? null : province;
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.province === province);
+            });
+
+            applyFilters();
         }
 
         function applyFilters() {
-            const searchTerm = document.getElementById('searchInput').value;
-            const normalizedSearch = normalizeString(searchTerm);
-            const listContainer = document.getElementById('listContainer');
-            const items = listContainer.querySelectorAll('.ganaderia-card');
-            let visibleCount = 0;
+            const search = normalize(document.getElementById('searchInput').value);
+            const list = document.getElementById('listContainer');
+            const items = list.querySelectorAll('.list-item');
+            let count = 0;
 
-            items.forEach((item, index) => {
-                const g = ganaderiasWithProvince[index];
-                const normalizedName = normalizeString(g.nombre);
-                const normalizedDir = normalizeString(g.direccion || '');
+            items.forEach((item, i) => {
+                const g = data[i];
+                const matchSearch = normalize(g.nombre).includes(search) ||
+                                   normalize(g.direccion || '').includes(search);
+                const matchProv = !activeProvince || g.provincia === activeProvince;
+                const show = matchSearch && matchProv;
 
-                const matchesSearch = normalizedName.includes(normalizedSearch) ||
-                                     normalizedDir.includes(normalizedSearch);
-                const matchesProvince = !activeProvince || g.provincia === activeProvince;
-                const matches = matchesSearch && matchesProvince;
+                item.style.display = show ? '' : 'none';
 
-                item.style.display = matches ? 'block' : 'none';
-                markers[index].visible = matches;
-
-                if (matches) {
-                    visibleCount++;
-                    if (!map.hasLayer(markers[index].marker)) {
-                        markers[index].marker.addTo(map);
-                    }
+                if (show) {
+                    count++;
+                    if (!map.hasLayer(markers[i].marker)) markers[i].marker.addTo(map);
                 } else {
-                    map.removeLayer(markers[index].marker);
+                    map.removeLayer(markers[i].marker);
                 }
             });
 
-            updateResultsCount(visibleCount);
+            document.getElementById('resultsCount').innerHTML =
+                `<strong>${count}</strong> de <strong>${data.length}</strong> ganaderias`;
 
-            // Update clear button visibility
-            const clearBtn = document.getElementById('searchClear');
-            clearBtn.classList.toggle('visible', searchTerm.length > 0);
+            // Show/hide clear button
+            document.getElementById('btnClear').classList.toggle('show',
+                document.getElementById('searchInput').value.length > 0);
         }
 
-        // Search input
-        document.getElementById('searchInput').addEventListener('input', () => {
-            applyFilters();
-        });
+        function normalize(str) {
+            return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
 
-        // Clear search button
-        document.getElementById('searchClear').addEventListener('click', () => {
+        function init() {
+            const list = document.getElementById('listContainer');
+
+            data.forEach((g, i) => {
+                // Create marker
+                const marker = L.marker([g.lat, g.lng], { icon: createIcon() }).addTo(map);
+                marker.bindPopup(createPopup(g), { maxWidth: 300 });
+                marker.on('click', () => setActive(i));
+                markers.push({ marker, data: g });
+
+                // Create list item
+                list.appendChild(createListItem(g, i));
+            });
+
+            initFilters();
+            applyFilters();
+        }
+
+        // ========== EVENTS ==========
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+        document.getElementById('btnClear').addEventListener('click', () => {
             document.getElementById('searchInput').value = '';
             applyFilters();
             document.getElementById('searchInput').focus();
         });
 
-        // ================================================
-        // MAP CONTROLS
-        // ================================================
-        document.getElementById('centerMap').addEventListener('click', () => {
+        document.getElementById('btnCenter').addEventListener('click', () => {
             map.setView([39.3, -3.2], 8, { animate: true });
         });
 
-        document.getElementById('fitAll').addEventListener('click', () => {
-            const visibleMarkers = markers.filter(m => m.visible).map(m => [m.data.lat, m.data.lng]);
-            if (visibleMarkers.length > 0) {
-                map.fitBounds(visibleMarkers, { padding: [50, 50], animate: true });
+        document.getElementById('btnFit').addEventListener('click', () => {
+            const visible = markers.filter((_, i) =>
+                document.querySelectorAll('.list-item')[i].style.display !== 'none'
+            );
+            if (visible.length) {
+                const bounds = visible.map(m => [m.data.lat, m.data.lng]);
+                map.fitBounds(bounds, { padding: [50, 50], animate: true });
             }
         });
 
-        // View toggle
-        document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+        // ========== MOBILE NAV ==========
+        function showView(view) {
+            const sidebar = document.getElementById('sidebar');
+            const mapContainer = document.getElementById('mapContainer');
+            const navMap = document.getElementById('navMap');
+            const navList = document.getElementById('navList');
 
-                if (btn.dataset.view === 'visible') {
-                    const visibleMarkers = markers.filter(m => m.visible).map(m => [m.data.lat, m.data.lng]);
-                    if (visibleMarkers.length > 0) {
-                        map.fitBounds(visibleMarkers, { padding: [50, 50], animate: true });
-                    }
-                }
-            });
+            if (view === 'map') {
+                sidebar.classList.remove('show');
+                mapContainer.classList.remove('hide');
+                navMap.classList.add('active');
+                navList.classList.remove('active');
+                map.invalidateSize();
+            } else {
+                sidebar.classList.add('show');
+                mapContainer.classList.add('hide');
+                navMap.classList.remove('active');
+                navList.classList.add('active');
+            }
+        }
+
+        document.getElementById('navMap').addEventListener('click', () => showView('map'));
+        document.getElementById('navList').addEventListener('click', () => showView('list'));
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('show');
+                document.getElementById('mapContainer').classList.remove('hide');
+            }
+            map.invalidateSize();
         });
 
-        // ================================================
-        // INITIALIZE
-        // ================================================
-        initializeMap();
+        // Init
+        init();
     </script>
 </body>
 </html>
